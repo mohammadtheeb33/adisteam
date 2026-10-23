@@ -1,0 +1,39 @@
+# The image needs pyproject.toml, README.md, apps/ and packages/ only.
+# Secrets and local state never enter the build context.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.git
+.github
+.venv
+venv
+.verification
+.mypy_cache
+.pytest_cache
+.ruff_cache
+.coverage
+.coverage.*
+htmlcov
+**/__pycache__
+**/*.py[cod]
+build
+dist
+*.egg-info
+frontend
+docs
+tests
+scripts
+supabase
+infrastructure
+ml/models
+ml/experiments
+ml/datasets
+mlruns
+mlartifacts
+# Reference copies of other teams' Phase 1 work; omran/ holds real traffic metadata.
+muna
+omran
+phase 1
+*.pdf

@@ -1,0 +1,22 @@
+<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'>
+  <System>
+    <Provider Name='Service Control Manager' Guid='{555908d1-a6d7-4695-8e1e-26931d2012f4}' EventSourceName='Service Control Manager'/>
+    <EventID Qualifiers='16384'>7036</EventID>
+    <Version>0</Version>
+    <Level>4</Level>
+    <Task>0</Task>
+    <Opcode>0</Opcode>
+    <Keywords>0x8080000000000000</Keywords>
+    <TimeCreated SystemTime='2026-10-09T21:21:02.0011223Z'/>
+    <EventRecordID>5121</EventRecordID>
+    <Correlation/>
+    <Execution ProcessID='812' ThreadID='9144'/>
+    <Channel>System</Channel>
+    <Computer>WIN-LAB-01</Computer>
+    <Security/>
+  </System>
+  <EventData>
+    <Data Name='param1'>Windows Update</Data>
+    <Data Name='param2'>running</Data>
+  </EventData>
+</Event>

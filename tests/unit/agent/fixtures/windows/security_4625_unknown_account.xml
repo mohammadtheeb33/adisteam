@@ -1,0 +1,41 @@
+<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'>
+  <System>
+    <Provider Name='Microsoft-Windows-Security-Auditing' Guid='{54849625-5478-4994-a5ba-3e3b0328c30d}'/>
+    <EventID>4625</EventID>
+    <Version>0</Version>
+    <Level>0</Level>
+    <Task>12544</Task>
+    <Opcode>0</Opcode>
+    <Keywords>0x8010000000000000</Keywords>
+    <TimeCreated SystemTime='2026-10-09T08:12:03.2500000Z'/>
+    <EventRecordID>120011</EventRecordID>
+    <Correlation/>
+    <Execution ProcessID='812' ThreadID='2210'/>
+    <Channel>Security</Channel>
+    <Computer>WIN-LAB-01</Computer>
+    <Security/>
+  </System>
+  <EventData>
+    <Data Name='SubjectUserSid'>S-1-0-0</Data>
+    <Data Name='SubjectUserName'>-</Data>
+    <Data Name='SubjectDomainName'>-</Data>
+    <Data Name='SubjectLogonId'>0x0</Data>
+    <Data Name='TargetUserSid'>S-1-0-0</Data>
+    <Data Name='TargetUserName'>FIXTURE-MISTYPED-PASSWORD</Data>
+    <Data Name='TargetDomainName'></Data>
+    <Data Name='Status'>0xc000006d</Data>
+    <Data Name='FailureReason'>%%2313</Data>
+    <Data Name='SubStatus'>0xc0000064</Data>
+    <Data Name='LogonType'>3</Data>
+    <Data Name='LogonProcessName'>NtLmSsp </Data>
+    <Data Name='AuthenticationPackageName'>NTLM</Data>
+    <Data Name='WorkstationName'>LAB-CLIENT-09</Data>
+    <Data Name='TransmittedServices'>-</Data>
+    <Data Name='LmPackageName'>-</Data>
+    <Data Name='KeyLength'>0</Data>
+    <Data Name='ProcessId'>0x0</Data>
+    <Data Name='ProcessName'>-</Data>
+    <Data Name='IpAddress'>198.51.100.23</Data>
+    <Data Name='IpPort'>49822</Data>
+  </EventData>
+</Event>

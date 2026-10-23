@@ -1,0 +1,11 @@
+# Provisions the local Prometheus as Grafana's default data source.
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    uid: adis-prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: false

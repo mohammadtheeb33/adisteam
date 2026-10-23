@@ -1,0 +1,265 @@
+# ADIS Phase 1 real-data lab: the whole ingestion pipeline fed by real telemetry.
+#
+# A separate compose project ("adis-lab") with its own Kafka, PostgreSQL, ingestion API,
+# normalizer and a Linux collector agent; it never uses the developer's .env or a hosted
+# Supabase project. Run it only on a machine you own:
+#
+#   docker compose -f infrastructure/lab/compose.yaml --env-file <lab env file> up -d --build
+#
+# The lab env file holds LAB_DB_PASSWORD, LAB_LINUX_AGENT_TOKEN and LAB_WINDOWS_AGENT_TOKEN
+# (random values; scripts/lab_phase1.py creates them). Real telemetry sources:
+#   web-client      real DNS/HTTPS/ICMP traffic of this container only (public web sites)
+#   capture         tcpdump in web-client's network namespace -> a real PCAP file
+#   flow-exporter   softflowd in the same namespace -> real IPFIX exports -> goflow2
+#   ssh-server      Debian sshd + PAM + rsyslog, forwarding syslog to the agent
+#   ssh-client      key-based logins, unknown accounts and an unknown key (no passwords)
+#   ebpf            bpftrace (infrastructure/ebpf/adis-syscalls.bt) on the Docker VM kernel
+# Every source runs in this lab's own containers; nothing touches the host's network
+# settings, and the privileged eBPF tracer stops by itself after LAB_DURATION seconds.
+
+name: adis-lab
+
+x-app: &app
+  build:
+    context: ../..
+    dockerfile: infrastructure/docker/Dockerfile
+  image: adis-phase1-copy:local
+  restart: unless-stopped
+  security_opt:
+    - no-new-privileges:true
+
+networks:
+  lab:
+    ipam:
+      config:
+        - subnet: 172.31.250.0/24
+
+volumes:
+  lab-data: {}
+  lab-keys: {}
+  agent-data: {}
+  kafka-data: {}
+  postgres-data: {}
+
+services:
+  kafka:
+    image: apache/kafka:3.9.1
+    hostname: kafka
+    networks: { lab: { ipv4_address: 172.31.250.2 } }
+    ports:
+      - "127.0.0.1:19092:19092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENERS: INTERNAL://:29092,CONTROLLER://:9093,HOST://:19092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,HOST://127.0.0.1:19092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT,HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - /opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:29092 > /dev/null 2>&1
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 30s
+
+  postgres:
+    image: postgres:17-alpine
+    networks: { lab: { ipv4_address: 172.31.250.3 } }
+    environment:
+      POSTGRES_USER: adis_lab
+      POSTGRES_DB: adis_lab
+      POSTGRES_PASSWORD: ${LAB_DB_PASSWORD:?set LAB_DB_PASSWORD in the lab env file}
+    ports:
+      - "127.0.0.1:15432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U adis_lab -d adis_lab"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # --- ADIS pipeline (started after scripts/lab_phase1.py migrated the database and created
+  # the topics) -------------------------------------------------------------------------
+  api:
+    <<: *app
+    profiles: ["pipeline"]
+    command: ["python", "-m", "apps.api"]
+    networks: { lab: { ipv4_address: 172.31.250.5 } }
+    ports:
+      - "127.0.0.1:18000:8000"
+    environment:
+      APP_ENV: development
+      LOG_LEVEL: INFO
+      API_HOST: 0.0.0.0
+      API_PORT: 8000
+      API_RATE_LIMIT_BACKEND: memory
+      API_RATE_LIMIT_EVENTS: 100000
+      API_RATE_LIMIT_WINDOW_SECONDS: 60
+      API_MAX_BATCH_SIZE: 1000
+      API_INGEST_TOKENS: lab-linux-collector:${LAB_LINUX_AGENT_TOKEN:?},lab-windows-agent:${LAB_WINDOWS_AGENT_TOKEN:?}
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      KAFKA_SECURITY_PROTOCOL: PLAINTEXT
+    depends_on:
+      kafka: { condition: service_healthy }
+
+  normalizer:
+    <<: *app
+    profiles: ["pipeline"]
+    command: ["python", "-m", "apps.normalizer"]
+    networks: { lab: { ipv4_address: 172.31.250.6 } }
+    environment:
+      APP_ENV: development
+      LOG_LEVEL: INFO
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      KAFKA_SECURITY_PROTOCOL: PLAINTEXT
+      SUPABASE_DB_URL: postgresql+asyncpg://adis_lab:${LAB_DB_PASSWORD:?}@postgres:5432/adis_lab
+      DB_SSL_MODE: disable
+      NORMALIZER_HEALTH_HOST: 0.0.0.0
+    depends_on:
+      kafka: { condition: service_healthy }
+      postgres: { condition: service_healthy }
+
+  # Linux collector agent: syslog receiver, NetFlow/IPFIX (GoFlow2 output), PCAP file, eBPF
+  # system calls and live capture of its own interface. Lab only: it runs as root with
+  # exactly the two capabilities live capture needs.
+  agent:
+    <<: *app
+    profiles: ["pipeline"]
+    command: ["python", "-m", "apps.agent", "run"]
+    hostname: lab-linux-collector
+    user: "0:0"
+    cap_drop: ["ALL"]
+    cap_add: ["NET_RAW", "NET_ADMIN"]
+    networks: { lab: { ipv4_address: 172.31.250.10 } }
+    environment:
+      APP_ENV: development
+      LOG_LEVEL: INFO
+      AGENT_SERVER_URL: http://172.31.250.5:8000
+      AGENT_TOKEN: ${LAB_LINUX_AGENT_TOKEN:?}
+      AGENT_NAME: lab-linux-collector
+      AGENT_DATA_DIR: /var/lib/adis-agent
+      AGENT_BATCH_SIZE: 500
+      AGENT_FLUSH_INTERVAL_SECONDS: 2
+      AGENT_SYSLOG_UDP_LISTEN: 172.31.250.10:5514
+      AGENT_SYSLOG_TCP_LISTEN: 172.31.250.10:5514
+      AGENT_SYSLOG_ALLOW_NON_LOOPBACK: "true"
+      AGENT_SYSLOG_ALLOWED_SENDERS: 172.31.250.0/24
+      AGENT_NETFLOW_EXPORTERS: lab-softflowd=172.31.250.21
+      AGENT_NETFLOW_RECORDS_FILE: /lab/goflow2.jsonl
+      AGENT_PCAP_FILES: /lab/web-client.pcap
+      AGENT_EBPF_EVENTS_FILE: /lab/ebpf-syscalls.jsonl
+      AGENT_SYSCALL_READ_FROM_START: "true"
+      AGENT_LIVE_CAPTURE_INTERFACE: eth0
+      AGENT_LIVE_CAPTURE_AUTHORIZED: "true"
+      AGENT_FLOW_IDLE_TIMEOUT_SECONDS: 15
+      AGENT_FLOW_ACTIVE_TIMEOUT_SECONDS: 60
+      # LAB_CODE=1 runs the repository's current agent code (read-only mount) instead of the
+      # code baked into the image, so a fix can be re-tested without rebuilding the image.
+      PYTHONPATH: ${LAB_CODE_PATH:-/opt/adis/none}
+    volumes:
+      - lab-data:/lab:ro
+      - agent-data:/var/lib/adis-agent
+      - ../../apps:/lab-code/apps:ro
+      - ../../packages:/lab-code/packages:ro
+    depends_on:
+      api: { condition: service_started }
+
+  # --- real telemetry sources ---------------------------------------------------------
+  web-client:
+    build: { context: ., dockerfile: tools.Dockerfile }
+    image: adis-lab-tools:local
+    profiles: ["sources"]
+    command: ["sh", "/opt/lab/web-client.sh"]
+    networks: { lab: { ipv4_address: 172.31.250.21 } }
+    environment:
+      DURATION: ${LAB_DURATION:-150}
+
+  capture:
+    image: adis-lab-tools:local
+    profiles: ["sources"]
+    network_mode: "service:web-client"
+    cap_drop: ["ALL"]
+    cap_add: ["NET_RAW", "NET_ADMIN"]
+    command:
+      - sh
+      - -c
+      - >-
+        timeout ${LAB_DURATION:-150} tcpdump -i eth0 -n -s 160 -U -w /lab/.web-client.pcap.part
+        'not udp port 2055' ; mv /lab/.web-client.pcap.part /lab/web-client.pcap
+    volumes:
+      - lab-data:/lab
+
+  flow-exporter:
+    image: adis-lab-tools:local
+    profiles: ["sources"]
+    network_mode: "service:web-client"
+    cap_drop: ["ALL"]
+    cap_add: ["NET_RAW", "NET_ADMIN"]
+    command:
+      - sh
+      - -c
+      - >-
+        timeout ${LAB_DURATION:-150} softflowd -d -i eth0 -n 172.31.250.30:2055 -v 10
+        -t general=20 -t tcp=20 -t udp=20 -t icmp=20 -t maxlife=60 -T full
+        'not udp port 2055'
+
+  goflow2:
+    image: netsampler/goflow2:v2.2.3
+    profiles: ["sources"]
+    user: "0:0"
+    networks: { lab: { ipv4_address: 172.31.250.30 } }
+    command:
+      - -listen=netflow://172.31.250.30:2055
+      - -format=json
+      - -transport=file
+      - -transport.file=/lab/goflow2.jsonl
+      - -mapping=/etc/adis/adis-mapping.yaml
+    volumes:
+      - lab-data:/lab
+      - ../goflow2:/etc/adis:ro
+
+  ssh-server:
+    build: { context: ., dockerfile: sshd.Dockerfile }
+    image: adis-lab-sshd:local
+    profiles: ["sources"]
+    networks: { lab: { ipv4_address: 172.31.250.40 } }
+    volumes:
+      - lab-keys:/keys:ro
+
+  ssh-client:
+    image: adis-lab-tools:local
+    profiles: ["sources"]
+    command: ["sh", "/opt/lab/ssh-client.sh"]
+    networks: { lab: { ipv4_address: 172.31.250.41 } }
+    volumes:
+      - lab-keys:/keys
+
+  ebpf:
+    build: { context: ., dockerfile: ebpf.Dockerfile }
+    image: adis-lab-ebpf:local
+    profiles: ["sources"]
+    privileged: true
+    pid: host
+    command:
+      - sh
+      - -c
+      - >-
+        mount -t tracefs nodev /sys/kernel/tracing 2>/dev/null;
+        timeout ${LAB_DURATION:-150} bpftrace -B line -f json /opt/adis/adis-syscalls.bt
+        >> /lab/ebpf-syscalls.jsonl 2>/dev/null; true
+    volumes:
+      - lab-data:/lab
+      - ../ebpf:/opt/adis:ro

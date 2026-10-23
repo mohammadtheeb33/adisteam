@@ -1,0 +1,76 @@
+#!/usr/bin/env bpftrace
+/*
+ * ADIS system-call tracer (eBPF): one JSON line per selected system call.
+ *
+ * Run it as root (or with CAP_BPF and CAP_PERFMON) only on machines you own or are
+ * authorized to monitor, writing to a file the ADIS agent reads (AGENT_EBPF_EVENTS_FILE).
+ * The JSON output format (-f json) is required:
+ *
+ *   bpftrace -B line -f json infrastructure/ebpf/adis-syscalls.bt >> /var/log/adis/ebpf-syscalls.jsonl
+ *
+ * The agent itself never loads eBPF programs and needs no privileges. Only security-relevant
+ * calls are traced (process execution, network connections and listeners, credential and
+ * privilege changes, file removal and permission changes, kernel modules, namespaces), so the
+ * volume stays manageable. Arguments are not recorded, except the executable path of exec
+ * calls; nothing is blocked or changed.
+ *
+ * Each call is printed as a tuple, which bpftrace writes as
+ *   {"type": "value", "data": [ts, ns, pid, ppid, uid, comm, probe, filename]}
+ * ts: epoch seconds with microseconds; ns: kernel monotonic time; comm: process name;
+ * probe: the tracepoint; filename: exec calls only. bpftrace escapes the strings, so a
+ * process name or path holding quotes, backslashes or newlines cannot break or forge a
+ * record (a printf of raw strings could).
+ *
+ * The tracer's own system calls are excluded by its process id, recorded in BEGIN (which
+ * runs in the bpftrace process). Excluding by name would hide any process that renames
+ * itself "bpftrace".
+ */
+
+BEGIN
+{
+  @tracer = pid;
+}
+
+tracepoint:syscalls:sys_enter_execve,
+tracepoint:syscalls:sys_enter_execveat
+/ pid != @tracer /
+{
+  print((strftime("%s.%f", nsecs), nsecs, pid, curtask->real_parent->tgid, uid, comm, probe,
+    str(args.filename)));
+}
+
+tracepoint:syscalls:sys_enter_connect,
+tracepoint:syscalls:sys_enter_accept,
+tracepoint:syscalls:sys_enter_accept4,
+tracepoint:syscalls:sys_enter_bind,
+tracepoint:syscalls:sys_enter_listen,
+tracepoint:syscalls:sys_enter_setuid,
+tracepoint:syscalls:sys_enter_setgid,
+tracepoint:syscalls:sys_enter_setreuid,
+tracepoint:syscalls:sys_enter_setresuid,
+tracepoint:syscalls:sys_enter_capset,
+tracepoint:syscalls:sys_enter_ptrace,
+tracepoint:syscalls:sys_enter_unlinkat,
+tracepoint:syscalls:sys_enter_renameat2,
+tracepoint:syscalls:sys_enter_fchmodat,
+tracepoint:syscalls:sys_enter_fchownat,
+tracepoint:syscalls:sys_enter_mount,
+tracepoint:syscalls:sys_enter_umount,
+tracepoint:syscalls:sys_enter_chroot,
+tracepoint:syscalls:sys_enter_unshare,
+tracepoint:syscalls:sys_enter_setns,
+tracepoint:syscalls:sys_enter_init_module,
+tracepoint:syscalls:sys_enter_finit_module,
+tracepoint:syscalls:sys_enter_delete_module,
+tracepoint:syscalls:sys_enter_kill,
+tracepoint:syscalls:sys_enter_memfd_create,
+tracepoint:syscalls:sys_enter_bpf
+/ pid != @tracer /
+{
+  print((strftime("%s.%f", nsecs), nsecs, pid, curtask->real_parent->tgid, uid, comm, probe));
+}
+
+END
+{
+  clear(@tracer);
+}

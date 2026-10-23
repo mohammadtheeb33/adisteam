@@ -1,0 +1,1144 @@
+{
+  "$defs": {
+    "AuthFailureReason": {
+      "description": "Normalized reason of a failed authentication. Keep the raw reason in ``metadata``.",
+      "enum": [
+        "invalid_credentials",
+        "unknown_user",
+        "account_locked",
+        "account_disabled",
+        "expired_credentials",
+        "mfa_failed",
+        "policy_denied",
+        "other"
+      ],
+      "title": "AuthFailureReason",
+      "type": "string"
+    },
+    "AuthMethod": {
+      "description": "How the principal tried to authenticate.",
+      "enum": [
+        "password",
+        "public_key",
+        "keyboard_interactive",
+        "certificate",
+        "kerberos",
+        "ntlm",
+        "oauth",
+        "saml",
+        "oidc",
+        "token",
+        "mfa",
+        "other"
+      ],
+      "title": "AuthMethod",
+      "type": "string"
+    },
+    "AuthenticationEvent": {
+      "additionalProperties": false,
+      "description": "A login, logout or other authentication attempt, with its network origin if known.",
+      "properties": {
+        "agent_id": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:@/+=-]{0,254}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ADIS identifier of the collecting agent, if any.",
+          "title": "Agent Id"
+        },
+        "auth_method": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AuthMethod"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Authentication method."
+        },
+        "bytes_received": {
+          "anyOf": [
+            {
+              "maximum": 9223372036854775807,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Bytes to source.",
+          "title": "Bytes Received"
+        },
+        "bytes_sent": {
+          "anyOf": [
+            {
+              "maximum": 9223372036854775807,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Bytes from source.",
+          "title": "Bytes Sent"
+        },
+        "category": {
+          "const": "authentication",
+          "default": "authentication",
+          "description": "Event category (schema discriminator).",
+          "title": "Category",
+          "type": "string"
+        },
+        "dst_ip": {
+          "anyOf": [
+            {
+              "format": "ipv4",
+              "type": "string"
+            },
+            {
+              "format": "ipv6",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Destination address.",
+          "title": "Dst Ip"
+        },
+        "dst_port": {
+          "anyOf": [
+            {
+              "maximum": 65535,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Destination port (TCP/UDP/SCTP).",
+          "title": "Dst Port"
+        },
+        "event_id": {
+          "description": "Unique id; used to deduplicate.",
+          "format": "uuid",
+          "title": "Event Id",
+          "type": "string"
+        },
+        "event_type": {
+          "description": "Dotted lower-case type, prefixed by the category (e.g. process.started).",
+          "maxLength": 128,
+          "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)*$",
+          "title": "Event Type",
+          "type": "string"
+        },
+        "failure_reason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AuthFailureReason"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Normalized reason; only when success is false."
+        },
+        "host_id": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:@/+=-]{0,254}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ADIS identifier of the host the event concerns.",
+          "title": "Host Id"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "description": "Vendor-specific data: JSON only, bounded, credentials redacted.",
+          "title": "Metadata",
+          "type": "object"
+        },
+        "protocol": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/NetworkProtocol"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Protocol name or IANA protocol number."
+        },
+        "received_at": {
+          "description": "When ADIS received the event (UTC).",
+          "format": "date-time",
+          "title": "Received At",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "description": "Canonical schema version (MAJOR.MINOR).",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "severity_hint": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SeverityHint"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Severity reported by the source; not the ADIS score."
+        },
+        "source_name": {
+          "description": "Configured name of the source instance (e.g. zeek@sensor-1).",
+          "pattern": "^[^\\s\\x00-\\x1f\\x7f](?:[^\\x00-\\x1f\\x7f]{0,254}[^\\s\\x00-\\x1f\\x7f])?$",
+          "title": "Source Name",
+          "type": "string"
+        },
+        "source_type": {
+          "description": "Kind of telemetry source (e.g. auditd, windows_eventlog, zeek, agent).",
+          "pattern": "^[a-z][a-z0-9_]{0,63}$",
+          "title": "Source Type",
+          "type": "string"
+        },
+        "src_ip": {
+          "anyOf": [
+            {
+              "format": "ipv4",
+              "type": "string"
+            },
+            {
+              "format": "ipv6",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Source address.",
+          "title": "Src Ip"
+        },
+        "src_port": {
+          "anyOf": [
+            {
+              "maximum": 65535,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Source port (TCP/UDP/SCTP).",
+          "title": "Src Port"
+        },
+        "success": {
+          "description": "Whether authentication succeeded.",
+          "title": "Success",
+          "type": "boolean"
+        },
+        "timestamp": {
+          "description": "When the event occurred at the source (UTC).",
+          "format": "date-time",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "trace_id": {
+          "description": "W3C trace id; inherited from the current context when omitted.",
+          "pattern": "^[0-9a-f]{32}$",
+          "title": "Trace Id",
+          "type": "string"
+        },
+        "username": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Principal as presented; observed value, never rejected.",
+          "title": "Username"
+        }
+      },
+      "required": [
+        "event_type",
+        "timestamp",
+        "source_type",
+        "source_name",
+        "success"
+      ],
+      "title": "AuthenticationEvent",
+      "type": "object"
+    },
+    "JsonValue": {},
+    "NetworkFlowEvent": {
+      "additionalProperties": false,
+      "description": "A network flow or connection between two endpoints.",
+      "properties": {
+        "agent_id": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:@/+=-]{0,254}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ADIS identifier of the collecting agent, if any.",
+          "title": "Agent Id"
+        },
+        "bytes_received": {
+          "anyOf": [
+            {
+              "maximum": 9223372036854775807,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Bytes to source.",
+          "title": "Bytes Received"
+        },
+        "bytes_sent": {
+          "anyOf": [
+            {
+              "maximum": 9223372036854775807,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Bytes from source.",
+          "title": "Bytes Sent"
+        },
+        "category": {
+          "const": "network",
+          "default": "network",
+          "description": "Event category (schema discriminator).",
+          "title": "Category",
+          "type": "string"
+        },
+        "dst_ip": {
+          "anyOf": [
+            {
+              "format": "ipv4",
+              "type": "string"
+            },
+            {
+              "format": "ipv6",
+              "type": "string"
+            }
+          ],
+          "description": "Destination address.",
+          "title": "Dst Ip"
+        },
+        "dst_port": {
+          "anyOf": [
+            {
+              "maximum": 65535,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Destination port (TCP/UDP/SCTP).",
+          "title": "Dst Port"
+        },
+        "event_id": {
+          "description": "Unique id; used to deduplicate.",
+          "format": "uuid",
+          "title": "Event Id",
+          "type": "string"
+        },
+        "event_type": {
+          "description": "Dotted lower-case type, prefixed by the category (e.g. process.started).",
+          "maxLength": 128,
+          "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)*$",
+          "title": "Event Type",
+          "type": "string"
+        },
+        "host_id": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:@/+=-]{0,254}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ADIS identifier of the host the event concerns.",
+          "title": "Host Id"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "description": "Vendor-specific data: JSON only, bounded, credentials redacted.",
+          "title": "Metadata",
+          "type": "object"
+        },
+        "protocol": {
+          "$ref": "#/$defs/NetworkProtocol",
+          "description": "Protocol name or IANA protocol number."
+        },
+        "received_at": {
+          "description": "When ADIS received the event (UTC).",
+          "format": "date-time",
+          "title": "Received At",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "description": "Canonical schema version (MAJOR.MINOR).",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "severity_hint": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SeverityHint"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Severity reported by the source; not the ADIS score."
+        },
+        "source_name": {
+          "description": "Configured name of the source instance (e.g. zeek@sensor-1).",
+          "pattern": "^[^\\s\\x00-\\x1f\\x7f](?:[^\\x00-\\x1f\\x7f]{0,254}[^\\s\\x00-\\x1f\\x7f])?$",
+          "title": "Source Name",
+          "type": "string"
+        },
+        "source_type": {
+          "description": "Kind of telemetry source (e.g. auditd, windows_eventlog, zeek, agent).",
+          "pattern": "^[a-z][a-z0-9_]{0,63}$",
+          "title": "Source Type",
+          "type": "string"
+        },
+        "src_ip": {
+          "anyOf": [
+            {
+              "format": "ipv4",
+              "type": "string"
+            },
+            {
+              "format": "ipv6",
+              "type": "string"
+            }
+          ],
+          "description": "Source address.",
+          "title": "Src Ip"
+        },
+        "src_port": {
+          "anyOf": [
+            {
+              "maximum": 65535,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Source port (TCP/UDP/SCTP).",
+          "title": "Src Port"
+        },
+        "timestamp": {
+          "description": "When the event occurred at the source (UTC).",
+          "format": "date-time",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "trace_id": {
+          "description": "W3C trace id; inherited from the current context when omitted.",
+          "pattern": "^[0-9a-f]{32}$",
+          "title": "Trace Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "event_type",
+        "timestamp",
+        "source_type",
+        "source_name",
+        "src_ip",
+        "dst_ip",
+        "protocol"
+      ],
+      "title": "NetworkFlowEvent",
+      "type": "object"
+    },
+    "NetworkProtocol": {
+      "description": "Transport or network protocol of a flow.",
+      "enum": [
+        "tcp",
+        "udp",
+        "sctp",
+        "icmp",
+        "icmpv6",
+        "igmp",
+        "gre",
+        "esp",
+        "ah",
+        "other"
+      ],
+      "title": "NetworkProtocol",
+      "type": "string"
+    },
+    "ProcessEvent": {
+      "additionalProperties": false,
+      "description": "A process lifecycle event (start, termination, injection...).",
+      "properties": {
+        "agent_id": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:@/+=-]{0,254}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ADIS identifier of the collecting agent, if any.",
+          "title": "Agent Id"
+        },
+        "category": {
+          "const": "process",
+          "default": "process",
+          "description": "Event category (schema discriminator).",
+          "title": "Category",
+          "type": "string"
+        },
+        "event_id": {
+          "description": "Unique id; used to deduplicate.",
+          "format": "uuid",
+          "title": "Event Id",
+          "type": "string"
+        },
+        "event_type": {
+          "description": "Dotted lower-case type, prefixed by the category (e.g. process.started).",
+          "maxLength": 128,
+          "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)*$",
+          "title": "Event Type",
+          "type": "string"
+        },
+        "executable_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Full path of the executable; observed value.",
+          "title": "Executable Path"
+        },
+        "host_id": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:@/+=-]{0,254}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ADIS identifier of the host the event concerns.",
+          "title": "Host Id"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "description": "Vendor-specific data: JSON only, bounded, credentials redacted.",
+          "title": "Metadata",
+          "type": "object"
+        },
+        "parent_process_id": {
+          "anyOf": [
+            {
+              "maximum": 4294967295,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Parent PID.",
+          "title": "Parent Process Id"
+        },
+        "process_id": {
+          "description": "Operating-system PID.",
+          "maximum": 4294967295,
+          "minimum": 0,
+          "title": "Process Id",
+          "type": "integer"
+        },
+        "process_name": {
+          "description": "Process image name; derived from executable_path when omitted.",
+          "title": "Process Name",
+          "type": "string"
+        },
+        "received_at": {
+          "description": "When ADIS received the event (UTC).",
+          "format": "date-time",
+          "title": "Received At",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "description": "Canonical schema version (MAJOR.MINOR).",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "severity_hint": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SeverityHint"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Severity reported by the source; not the ADIS score."
+        },
+        "source_name": {
+          "description": "Configured name of the source instance (e.g. zeek@sensor-1).",
+          "pattern": "^[^\\s\\x00-\\x1f\\x7f](?:[^\\x00-\\x1f\\x7f]{0,254}[^\\s\\x00-\\x1f\\x7f])?$",
+          "title": "Source Name",
+          "type": "string"
+        },
+        "source_type": {
+          "description": "Kind of telemetry source (e.g. auditd, windows_eventlog, zeek, agent).",
+          "pattern": "^[a-z][a-z0-9_]{0,63}$",
+          "title": "Source Type",
+          "type": "string"
+        },
+        "timestamp": {
+          "description": "When the event occurred at the source (UTC).",
+          "format": "date-time",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "trace_id": {
+          "description": "W3C trace id; inherited from the current context when omitted.",
+          "pattern": "^[0-9a-f]{32}$",
+          "title": "Trace Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "event_type",
+        "timestamp",
+        "source_type",
+        "source_name",
+        "process_name",
+        "process_id"
+      ],
+      "title": "ProcessEvent",
+      "type": "object"
+    },
+    "SecurityEvent": {
+      "additionalProperties": false,
+      "description": "A finding from a security tool (IDS, EDR, antivirus, audit), with optional context.",
+      "properties": {
+        "agent_id": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:@/+=-]{0,254}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ADIS identifier of the collecting agent, if any.",
+          "title": "Agent Id"
+        },
+        "bytes_received": {
+          "anyOf": [
+            {
+              "maximum": 9223372036854775807,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Bytes to source.",
+          "title": "Bytes Received"
+        },
+        "bytes_sent": {
+          "anyOf": [
+            {
+              "maximum": 9223372036854775807,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Bytes from source.",
+          "title": "Bytes Sent"
+        },
+        "category": {
+          "const": "security",
+          "default": "security",
+          "description": "Event category (schema discriminator).",
+          "title": "Category",
+          "type": "string"
+        },
+        "dst_ip": {
+          "anyOf": [
+            {
+              "format": "ipv4",
+              "type": "string"
+            },
+            {
+              "format": "ipv6",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Destination address.",
+          "title": "Dst Ip"
+        },
+        "dst_port": {
+          "anyOf": [
+            {
+              "maximum": 65535,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Destination port (TCP/UDP/SCTP).",
+          "title": "Dst Port"
+        },
+        "event_id": {
+          "description": "Unique id; used to deduplicate.",
+          "format": "uuid",
+          "title": "Event Id",
+          "type": "string"
+        },
+        "event_type": {
+          "description": "Dotted lower-case type, prefixed by the category (e.g. process.started).",
+          "maxLength": 128,
+          "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)*$",
+          "title": "Event Type",
+          "type": "string"
+        },
+        "executable_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Full path of the executable; observed value.",
+          "title": "Executable Path"
+        },
+        "host_id": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:@/+=-]{0,254}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ADIS identifier of the host the event concerns.",
+          "title": "Host Id"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "description": "Vendor-specific data: JSON only, bounded, credentials redacted.",
+          "title": "Metadata",
+          "type": "object"
+        },
+        "parent_process_id": {
+          "anyOf": [
+            {
+              "maximum": 4294967295,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Parent PID.",
+          "title": "Parent Process Id"
+        },
+        "process_id": {
+          "anyOf": [
+            {
+              "maximum": 4294967295,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Operating-system PID.",
+          "title": "Process Id"
+        },
+        "process_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Process image name; observed value, never rejected.",
+          "title": "Process Name"
+        },
+        "protocol": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/NetworkProtocol"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Protocol name or IANA protocol number."
+        },
+        "received_at": {
+          "description": "When ADIS received the event (UTC).",
+          "format": "date-time",
+          "title": "Received At",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "description": "Canonical schema version (MAJOR.MINOR).",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "severity_hint": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SeverityHint"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Severity reported by the source; not the ADIS score."
+        },
+        "source_name": {
+          "description": "Configured name of the source instance (e.g. zeek@sensor-1).",
+          "pattern": "^[^\\s\\x00-\\x1f\\x7f](?:[^\\x00-\\x1f\\x7f]{0,254}[^\\s\\x00-\\x1f\\x7f])?$",
+          "title": "Source Name",
+          "type": "string"
+        },
+        "source_type": {
+          "description": "Kind of telemetry source (e.g. auditd, windows_eventlog, zeek, agent).",
+          "pattern": "^[a-z][a-z0-9_]{0,63}$",
+          "title": "Source Type",
+          "type": "string"
+        },
+        "src_ip": {
+          "anyOf": [
+            {
+              "format": "ipv4",
+              "type": "string"
+            },
+            {
+              "format": "ipv6",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Source address.",
+          "title": "Src Ip"
+        },
+        "src_port": {
+          "anyOf": [
+            {
+              "maximum": 65535,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Source port (TCP/UDP/SCTP).",
+          "title": "Src Port"
+        },
+        "timestamp": {
+          "description": "When the event occurred at the source (UTC).",
+          "format": "date-time",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "trace_id": {
+          "description": "W3C trace id; inherited from the current context when omitted.",
+          "pattern": "^[0-9a-f]{32}$",
+          "title": "Trace Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "event_type",
+        "timestamp",
+        "source_type",
+        "source_name"
+      ],
+      "title": "SecurityEvent",
+      "type": "object"
+    },
+    "SeverityHint": {
+      "description": "Severity reported or implied by the source. ADIS computes its own threat score.",
+      "enum": [
+        "info",
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "title": "SeverityHint",
+      "type": "string"
+    },
+    "SystemEvent": {
+      "additionalProperties": false,
+      "description": "Host and operating-system activity (boot, services, configuration, accounts).",
+      "properties": {
+        "agent_id": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:@/+=-]{0,254}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ADIS identifier of the collecting agent, if any.",
+          "title": "Agent Id"
+        },
+        "category": {
+          "const": "system",
+          "default": "system",
+          "description": "Event category (schema discriminator).",
+          "title": "Category",
+          "type": "string"
+        },
+        "event_id": {
+          "description": "Unique id; used to deduplicate.",
+          "format": "uuid",
+          "title": "Event Id",
+          "type": "string"
+        },
+        "event_type": {
+          "description": "Dotted lower-case type, prefixed by the category (e.g. process.started).",
+          "maxLength": 128,
+          "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)*$",
+          "title": "Event Type",
+          "type": "string"
+        },
+        "host_id": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:@/+=-]{0,254}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ADIS identifier of the host the event concerns.",
+          "title": "Host Id"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "description": "Vendor-specific data: JSON only, bounded, credentials redacted.",
+          "title": "Metadata",
+          "type": "object"
+        },
+        "received_at": {
+          "description": "When ADIS received the event (UTC).",
+          "format": "date-time",
+          "title": "Received At",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "description": "Canonical schema version (MAJOR.MINOR).",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "severity_hint": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SeverityHint"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Severity reported by the source; not the ADIS score."
+        },
+        "source_name": {
+          "description": "Configured name of the source instance (e.g. zeek@sensor-1).",
+          "pattern": "^[^\\s\\x00-\\x1f\\x7f](?:[^\\x00-\\x1f\\x7f]{0,254}[^\\s\\x00-\\x1f\\x7f])?$",
+          "title": "Source Name",
+          "type": "string"
+        },
+        "source_type": {
+          "description": "Kind of telemetry source (e.g. auditd, windows_eventlog, zeek, agent).",
+          "pattern": "^[a-z][a-z0-9_]{0,63}$",
+          "title": "Source Type",
+          "type": "string"
+        },
+        "timestamp": {
+          "description": "When the event occurred at the source (UTC).",
+          "format": "date-time",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "trace_id": {
+          "description": "W3C trace id; inherited from the current context when omitted.",
+          "pattern": "^[0-9a-f]{32}$",
+          "title": "Trace Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "event_type",
+        "timestamp",
+        "source_type",
+        "source_name"
+      ],
+      "title": "SystemEvent",
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "discriminator": {
+    "mapping": {
+      "authentication": "#/$defs/AuthenticationEvent",
+      "network": "#/$defs/NetworkFlowEvent",
+      "process": "#/$defs/ProcessEvent",
+      "security": "#/$defs/SecurityEvent",
+      "system": "#/$defs/SystemEvent"
+    },
+    "propertyName": "category"
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/SystemEvent"
+    },
+    {
+      "$ref": "#/$defs/AuthenticationEvent"
+    },
+    {
+      "$ref": "#/$defs/NetworkFlowEvent"
+    },
+    {
+      "$ref": "#/$defs/ProcessEvent"
+    },
+    {
+      "$ref": "#/$defs/SecurityEvent"
+    }
+  ],
+  "title": "ADIS canonical event 1.0"
+}

@@ -1,0 +1,25 @@
+<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'>
+  <System>
+    <Provider Name='MsiInstaller'/>
+    <EventID Qualifiers='0'>11707</EventID>
+    <Version>0</Version>
+    <Level>4</Level>
+    <Task>0</Task>
+    <Opcode>0</Opcode>
+    <Keywords>0x80000000000000</Keywords>
+    <TimeCreated SystemTime='2026-10-09T21:35:44.0000000Z'/>
+    <EventRecordID>52010</EventRecordID>
+    <Correlation/>
+    <Execution ProcessID='9876' ThreadID='0'/>
+    <Channel>Application</Channel>
+    <Computer>WIN-LAB-01</Computer>
+    <Security UserID='S-1-5-21-1111111111-2222222222-3333333333-1001'/>
+  </System>
+  <EventData>
+    <Data>Product: ADIS Lab Tool -- Installation operation completed successfully.</Data>
+    <Data>(NULL)</Data>
+    <Data>(NULL)</Data>
+    <Data>(NULL)</Data>
+    <Binary>7B33463241383336462D...</Binary>
+  </EventData>
+</Event>

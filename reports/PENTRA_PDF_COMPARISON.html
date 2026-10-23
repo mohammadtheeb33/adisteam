@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>مطابقة pentra.pdf</title>
+<meta name="description" content="مقارنة نسخ Phase 1 الثلاث (المشروع الأساسي، muna، omran) بمتطلبات ملف pentra.pdf، مع الفجوات والدرجات والتوصيات.">
+<style>
+:root{
+  --bg:#f7f7f5; --surface:#ffffff; --surface-2:#f0f0ec; --text:#1d1d1b; --muted:#5f5f5a; --border:#deded8;
+  --accent:#1f5fa8; --accent-soft:#e3edf8;
+  --crit:#b3261e; --crit-bg:#fbe9e7; --high:#c4510f; --high-bg:#fdf0e6; --med:#8a6d00; --med-bg:#fbf5dc;
+  --low:#2e6b3a; --low-bg:#e8f3ea; --info:#4a5a6a; --info-bg:#eceff2;
+  --ok:#2e7d32; --part:#b07800; --no:#b3261e; --code-bg:#f1f1ee;
+  --main:#1f5fa8; --muna:#7b3fa0; --omran:#b0581b; --bar-bg:#e6e6e1;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#151515; --surface:#1e1e1d; --surface-2:#262624; --text:#ececea; --muted:#a6a6a0; --border:#363633;
+    --accent:#7fb0ea; --accent-soft:#1d2b3b;
+    --crit:#ff8a80; --crit-bg:#3a1d1b; --high:#ffab70; --high-bg:#3a2717; --med:#e8c64c; --med-bg:#352f15;
+    --low:#8fd19e; --low-bg:#1c2f21; --info:#b0bccb; --info-bg:#252b31;
+    --ok:#81c784; --part:#ffcc66; --no:#ff8a80; --code-bg:#2a2a28;
+    --main:#7fb0ea; --muna:#c79be6; --omran:#f0a36b; --bar-bg:#2e2e2b;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#151515; --surface:#1e1e1d; --surface-2:#262624; --text:#ececea; --muted:#a6a6a0; --border:#363633;
+  --accent:#7fb0ea; --accent-soft:#1d2b3b;
+  --crit:#ff8a80; --crit-bg:#3a1d1b; --high:#ffab70; --high-bg:#3a2717; --med:#e8c64c; --med-bg:#352f15;
+  --low:#8fd19e; --low-bg:#1c2f21; --info:#b0bccb; --info-bg:#252b31;
+  --ok:#81c784; --part:#ffcc66; --no:#ff8a80; --code-bg:#2a2a28;
+  --main:#7fb0ea; --muna:#c79be6; --omran:#f0a36b; --bar-bg:#2e2e2b;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Segoe UI",Tahoma,"Noto Naskh Arabic","Noto Sans Arabic",Arial,sans-serif;line-height:1.75;font-size:16px}
+a{color:var(--accent)}
+code{font-family:Consolas,"Cascadia Mono",Menlo,monospace;font-size:.86em;background:var(--code-bg);padding:.08em .35em;border-radius:4px;direction:ltr;unicode-bidi:isolate;overflow-wrap:anywhere}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px 64px}
+header.top{background:var(--surface);border-bottom:1px solid var(--border)}
+header.top .wrap{padding-top:28px;padding-bottom:22px}
+h1{font-size:1.7rem;line-height:1.35;margin:0 0 .3em}
+h2{font-size:1.35rem;margin:2.2em 0 .6em;padding-bottom:.3em;border-bottom:2px solid var(--border);scroll-margin-top:12px}
+h3{font-size:1.1rem;margin:1.5em 0 .5em}
+p{margin:.5em 0 .9em}
+.sub{color:var(--muted);margin:0}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;color:var(--muted);font-size:.9rem;margin-top:10px}
+nav.toc{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin:22px 0}
+nav.toc ol{margin:0;padding-inline-start:1.3em;columns:2;column-gap:28px}
+nav.toc li{break-inside:avoid;margin:.12em 0}
+@media (max-width:700px){nav.toc ol{columns:1}}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin:14px 0}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;border-top:4px solid var(--accent)}
+.card.main{border-top-color:var(--main)} .card.muna{border-top-color:var(--muna)} .card.omran{border-top-color:var(--omran)}
+.card h3{margin:.1em 0 .4em}
+.card ul{margin:.3em 0;padding-inline-start:1.2em}
+.score{font-size:2rem;font-weight:700;direction:ltr;unicode-bidi:isolate;line-height:1.2}
+.score small{font-size:.95rem;color:var(--muted);font-weight:400}
+.bars{margin:8px 0 4px}
+.bar{display:grid;grid-template-columns:8.5em 1fr 4.2em;gap:8px;align-items:center;font-size:.86rem;margin:4px 0}
+.bar .track{height:10px;background:var(--bar-bg);border-radius:999px;overflow:hidden}
+.bar .fill{display:block;height:100%;border-radius:999px}
+.bar .v{direction:ltr;unicode-bidi:isolate;text-align:end;color:var(--muted)}
+.fill.main{background:var(--main)} .fill.muna{background:var(--muna)} .fill.omran{background:var(--omran)}
+.callout{background:var(--accent-soft);border-inline-start:4px solid var(--accent);border-radius:8px;padding:12px 16px;margin:14px 0}
+.callout.warn{background:var(--high-bg);border-inline-start-color:var(--high)}
+.tbl{width:100%;overflow-x:auto;margin:10px 0 16px;border:1px solid var(--border);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top;text-align:start}
+th{background:var(--surface-2);font-weight:600;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+td.c{text-align:center;white-space:nowrap}
+tr.grp td{background:var(--surface-2);font-weight:700;color:var(--muted);font-size:.86rem}
+.col-main{color:var(--main);font-weight:600} .col-muna{color:var(--muna);font-weight:600} .col-omran{color:var(--omran);font-weight:600}
+.y{color:var(--ok);font-weight:700} .p{color:var(--part);font-weight:700} .n{color:var(--no);font-weight:700} .q{color:var(--muted);font-weight:700}
+.rid{font-family:Consolas,Menlo,monospace;font-weight:700;direction:ltr;unicode-bidi:isolate;white-space:nowrap}
+.sev{display:inline-block;font-size:.78rem;font-weight:700;padding:1px 9px;border-radius:999px;white-space:nowrap}
+.sev.crit{color:var(--crit);background:var(--crit-bg)} .sev.high{color:var(--high);background:var(--high-bg)}
+.sev.med{color:var(--med);background:var(--med-bg)} .sev.low{color:var(--low);background:var(--low-bg)} .sev.info{color:var(--info);background:var(--info-bg)}
+.src{display:inline-block;font-size:.78rem;font-weight:700;padding:1px 9px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
+.src.main{color:var(--main)} .src.muna{color:var(--muna)} .src.omran{color:var(--omran)} .src.all{color:var(--muted)}
+.issue{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin:10px 0;border-inline-start:5px solid var(--border)}
+.issue[data-sev="crit"]{border-inline-start-color:var(--crit)} .issue[data-sev="high"]{border-inline-start-color:var(--high)}
+.issue[data-sev="med"]{border-inline-start-color:var(--med)} .issue[data-sev="low"]{border-inline-start-color:var(--low)} .issue[data-sev="info"]{border-inline-start-color:var(--info)}
+.issue .hd{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin-bottom:4px}
+.issue .id{font-family:Consolas,Menlo,monospace;font-weight:700;direction:ltr;unicode-bidi:isolate}
+.issue .ttl{font-weight:700}
+.issue dl{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:3px 12px;margin:6px 0 0}
+.issue dt{color:var(--muted);font-size:.88rem}
+.issue dd{margin:0;min-width:0;overflow-wrap:anywhere}
+@media (max-width:640px){.issue dl{grid-template-columns:minmax(0,1fr)}.issue dt{margin-top:4px}.bar{grid-template-columns:6.5em 1fr 3.8em}}
+footer{color:var(--muted);font-size:.85rem;margin-top:40px;border-top:1px solid var(--border);padding-top:14px}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <h1>مطابقة نسخ Phase 1 الثلاث مع ملف pentra.pdf</h1>
+    <p class="sub">كل متطلب من متطلبات المرحلة الأولى في pentra.pdf، وهل حققته نسخة المشروع الأساسي و muna و omran، مع الأدلة والفجوات.</p>
+    <div class="meta">
+      <span>التاريخ: 2026-10-19</span>
+      <span>المرجع: <code>D:\pentra\pentra.pdf</code> (17 صفحة)</span>
+      <span>تقرير مرافق: <a href="PHASE_1_COMPARISON_REPORT.html">مقارنة Phase 1 الشاملة</a> · <a href="DEEP_COMPARISON_REPORT.html">نقاط الضعف الفعلية مقابل النسخة المكتملة</a> · <a href="COMPLETED_VERSION_REPORT.html">تقرير النسخة المكتملة</a></span>
+    </div>
+    <p class="sub"><strong>ملاحظة:</strong> هذا التقرير يصف الحالة <em>قبل</em> التنفيذ. بعد تنفيذ المرحلة الأولى في المشروع الأساسي أصبحت درجته 17 من 19؛ التفاصيل في <a href="PHASE_1_IMPLEMENTATION_REPORT.html">تقرير التنفيذ والاختبار على بيانات حقيقية</a>.</p>
+  </div>
+</header>
+
+<main class="wrap">
+
+<nav class="toc" aria-label="المحتويات">
+  <strong>المحتويات</strong>
+  <ol>
+    <li><a href="#summary">الخلاصة</a></li>
+    <li><a href="#doc">ما هو pentra.pdf وكيف قُرئ</a></li>
+    <li><a href="#vs-adis">pentra.pdf مقابل adis.pdf (مواصفة muna)</a></li>
+    <li><a href="#reqs">متطلبات Phase 1 في pentra.pdf</a></li>
+    <li><a href="#matrix">مصفوفة المطابقة</a></li>
+    <li><a href="#gaps">الفجوات (مع الأدلة)</a></li>
+    <li><a href="#extras">ما في النسخ وليس في pentra.pdf</a></li>
+    <li><a href="#beyond">ما بعد Phase 1: مراحل pentra.pdf ومؤشراته</a></li>
+    <li><a href="#plan">ما يلزم لمطابقة pentra.pdf</a></li>
+  </ol>
+</nav>
+
+<!-- ============================================================ -->
+<h2 id="summary">1. الخلاصة</h2>
+
+<div class="cards">
+  <div class="card main">
+    <h3 class="col-main">المشروع الأساسي</h3>
+    <div class="score">12 <small>/ 19 متطلبًا</small></div>
+    <div class="bars">
+      <div class="bar"><span>المرحلة الأولى (§2)</span><span class="track"><span class="fill main" style="width:60%"></span></span><span class="v">9 / 15</span></div>
+      <div class="bar"><span>مصادر البيانات</span><span class="track"><span class="fill main" style="width:12.5%"></span></span><span class="v">0.5 / 4</span></div>
+      <div class="bar"><span>النشر والمراقبة</span><span class="track"><span class="fill main" style="width:75%"></span></span><span class="v">3 / 4</span></div>
+    </div>
+    <p>أقوى في البنية (Kafka، FastAPI، التوحيد، Docker، المراقبة)، وأضعف في <strong>مصادر البيانات</strong> التي يطلبها pentra.pdf: لا Windows Event Log ولا PCAP ولا NetFlow ولا سلوك مستخدم.</p>
+  </div>
+  <div class="card muna">
+    <h3 class="col-muna">muna</h3>
+    <div class="score">11.5 <small>/ 19 متطلبًا</small></div>
+    <div class="bars">
+      <div class="bar"><span>المرحلة الأولى (§2)</span><span class="track"><span class="fill muna" style="width:70%"></span></span><span class="v">10.5 / 15</span></div>
+      <div class="bar"><span>مصادر البيانات</span><span class="track"><span class="fill muna" style="width:50%"></span></span><span class="v">2 / 4</span></div>
+      <div class="bar"><span>النشر والمراقبة</span><span class="track"><span class="fill muna" style="width:25%"></span></span><span class="v">1 / 4</span></div>
+    </div>
+    <p><strong>الأقرب إلى نص المرحلة الأولى</strong> في pentra.pdf: نفس أسماء الـ topics، Windows Event Log، NetFlow/IPFIX و PCAP مع خصائص الـ flow، وجلسات المستخدم. لكنها غير مُحوَّاة ولا تستقبل من أجهزة أخرى بأمان.</p>
+  </div>
+  <div class="card omran">
+    <h3 class="col-omran">omran</h3>
+    <div class="score">2.5 <small>/ 19 متطلبًا</small></div>
+    <div class="bars">
+      <div class="bar"><span>المرحلة الأولى (§2)</span><span class="track"><span class="fill omran" style="width:16.7%"></span></span><span class="v">2.5 / 15</span></div>
+      <div class="bar"><span>مصادر البيانات</span><span class="track"><span class="fill omran" style="width:12.5%"></span></span><span class="v">0.5 / 4</span></div>
+      <div class="bar"><span>النشر والمراقبة</span><span class="track"><span class="fill omran" style="width:0%"></span></span><span class="v">0 / 4</span></div>
+    </div>
+    <p>يحقق أجزاء جزئية فقط: يستخدم FastAPI و Kafka ويلتقط حزمًا حية. لا تنسيق موحد، لا topics حسب نوع البيانات، لا ضمان عدم الفقد.</p>
+  </div>
+</div>
+
+<div class="callout">
+  <strong>النتيجة:</strong> لا توجد نسخة تطابق pentra.pdf بالكامل. على نص المرحلة الأولى وحده (§2) تتقدم <strong class="col-muna">muna</strong> (10.5 من 15) على <strong class="col-main">المشروع الأساسي</strong> (9 من 15)، لأن pentra.pdf يركز على <em>مصادر البيانات</em>. وعند إضافة متطلبات النشر والمراقبة من §8 و §9 يتقدم الأساسي (12 مقابل 11.5 من 19). والدمج المقترح في التقرير الأول (الأساسي + مجمّعات muna) يصل إلى 13.5 من 19، وإلى نحو <strong>15 من 19</strong> مع قرار التسمية وتعريف متجهات الجلسات (<a href="#plan">القسم 9</a>).
+  <br><strong>ثلاثة متطلبات لا تحققها أي نسخة:</strong> استدعاءات النظام (Auditd/eBPF)، ملايين الرسائل في الثانية، وزمن كشف أقل من 50 ms. ومصدر Syslog غير مدعوم كبروتوكول في أي نسخة.
+</div>
+
+<p class="sub">طريقة العد: <span class="y">✔</span> = 1، <span class="p">◐</span> = 0.5، <span class="n">✘</span> أو <span class="q">؟</span> (غير مُقاس) = 0. الدرجة تقيس المطابقة لـ pentra.pdf فقط، وليست تقييمًا لجودة الكود (انظر التقرير المرافق للجودة والمشاكل).</p>
+
+<!-- ============================================================ -->
+<h2 id="doc">2. ما هو pentra.pdf وكيف قُرئ</h2>
+<div class="tbl"><table>
+<thead><tr><th>البند</th><th>التفصيل</th></tr></thead>
+<tbody>
+<tr><td>الملف</td><td><code>D:\pentra\pentra.pdf</code>، 17 صفحة، أُنشئ بتاريخ 2026-03-20 (ReportLab)، عنوانه «ADIS — Adaptive Digital Immune System».</td></tr>
+<tr><td>البنية</td><td>12 قسمًا: المقدمة، ثم 8 مراحل (الاستشعار وجمع البيانات، كشف الانحرافات، نواة التعلم المناعي، الاستجابة التكيفية، الذاكرة المناعية، الواجهة، الاختبار والتقييم، النشر والتشغيل)، ثم مؤشرات الأداء، التوسعات، والخلاصة.</td></tr>
+<tr><td>المرحلة الأولى</td><td>القسم 2، الصفحتان 4 و 5: «المرحلة الأولى: طبقة الاستشعار وجمع البيانات».</td></tr>
+<tr><td>طريقة القراءة</td><td>النص العربي في الملف لا يُستخرج بأدوات النص العادية (خطوط بلا خريطة Unicode)، فحُوِّلت كل صفحة إلى صورة وقُرئت كاملة. نفس الطريقة طُبقت على <code>adis.pdf</code> الخاص بـ muna للمقارنة.</td></tr>
+<tr><td>هل استخدمته أي نسخة؟</td><td><strong>لا.</strong> المشروع الأساسي لا يذكر pentra.pdf في أي ملف (بُني من <code>CLAUDE.md</code>)، و muna بنت على <code>adis.pdf</code> و <code>adis_phase1.html</code>، و omran لا يذكر أي مواصفة.</td></tr>
+</tbody></table></div>
+
+<!-- ============================================================ -->
+<h2 id="vs-adis">3. pentra.pdf مقابل adis.pdf (المواصفة التي استخدمتها muna)</h2>
+<p>الملفان نسختان من نفس الوثيقة. <strong>محتوى المرحلة الأولى متطابق في جوهره</strong> (نفس الخطوات الثلاث ونفس جدول أنواع البيانات)، والفروق في الصياغة والأرقام:</p>
+<div class="tbl"><table>
+<thead><tr><th>البند</th><th>pentra.pdf</th><th>adis.pdf (muna)</th><th>الأثر على Phase 1</th></tr></thead>
+<tbody>
+<tr><td>التاريخ / الصفحات</td><td>2026-03-20 / 17</td><td>2026-05-10 / 14 (أحدث)</td><td>adis.pdf هو الأحدث؛ وجود نسختين بدون تحديد المعتمدة مشكلة حوكمة (<a href="#G-13">G-13</a>).</td></tr>
+<tr><td>تقنيات الطبقة 1 (جدول المعمارية)</td><td>«جمع البيانات من مصادر متعددة عبر Kafka»</td><td>«Kafka + FastAPI + eBPF»</td><td>adis.pdf يجعل eBPF جزءًا صريحًا من طبقة الاستشعار؛ لا نسخة تنفذه.</td></tr>
+<tr><td>topics</td><td><code>system_logs</code>، <code>network_flows</code>، <code>auth_events</code></td><td>نفسها</td><td>لا فرق.</td></tr>
+<tr><td>فائدة Kafka</td><td>ترتيب الأحداث وإمكانية إعادة معالجتها، عدم فقد أي حدث، ملايين الرسائل في الثانية</td><td>ترتيب الأحداث داخل نفس الـ partition، عدم فقد أي حدث، ملايين الرسائل</td><td>pentra.pdf يطلب «إعادة المعالجة» صراحة (R-06).</td></tr>
+<tr><td>FastAPI</td><td>يستقبل من الوكلاء (Agents) على الأجهزة المختلفة؛ async؛ «أداء يقارب Go»، توثيق تلقائي، تحقق تلقائي</td><td>نفس الاستقبال من الوكلاء؛ «من أسرع أطر Python للمهام غير المتزامنة»</td><td>pentra.pdf يذكر التوثيق والتحقق التلقائيين صراحة (R-10).</td></tr>
+<tr><td>جدول أنواع البيانات</td><td colspan="2">متطابق: سجلات النظام (Syslog، Windows Event Log ← JSON)، تدفقات الشبكة (NetFlow/IPFIX، PCAP ← خصائص مستخرجة)، استدعاءات النظام (Auditd، eBPF ← تسلسلات استدعاء)، سلوك المستخدم (سجلات المصادقة والوصول ← متجهات الجلسات)</td><td>نفس المتطلبات R-11 إلى R-14.</td></tr>
+<tr><td>رؤية 360°</td><td>صندوق «فائدة تنوع مصادر البيانات» (ص 5)</td><td>غير موجود</td><td>متطلب إضافي في pentra.pdf (R-15).</td></tr>
+<tr><td>باقي الأقسام</td><td>أرقام مختلفة (مثلًا: NSA بدقة 88%، Isolation Forest «0.0065»، F1 = 0.94 مع 150 ms، DQN 96.7%)</td><td>أرقام مع مراجع بحثية (مثلًا: NSA F1 = 0.837، IF+AE F1 98.6–98.9%)</td><td>لا يمس Phase 1؛ يمس مؤشرات الأداء (<a href="#beyond">القسم 8</a>).</td></tr>
+<tr><td><code>adis_phase1.html</code></td><td colspan="2">ملف muna التوضيحي يستخدم في أمثلته topic واحدًا اسمه <code>security-events</code> ونقطة <code>/api/security-event</code>، بخلاف الـ topics الثلاثة في الملفين</td><td>مصدر ثالث متناقض.</td></tr>
+</tbody></table></div>
+
+<!-- ============================================================ -->
+<h2 id="reqs">4. متطلبات Phase 1 في pentra.pdf</h2>
+<p>استُخرجت من القسم 2 (R-01 إلى R-15)، ومن الأقسام الأخرى التي تمس طبقة الاستشعار مباشرة (R-16 إلى R-19).</p>
+<div class="tbl"><table>
+<thead><tr><th>الرقم</th><th>المتطلب كما في pentra.pdf</th><th>الموضع</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="3">أ. الهدف والتوحيد</td></tr>
+<tr><td class="rid">R-01</td><td>جمع البيانات الخام من <strong>جميع</strong> مصادر الشبكة والأنظمة</td><td>§2، ص 4</td></tr>
+<tr><td class="rid">R-02</td><td>توحيدها في <strong>تنسيق موحد</strong> لتغذية المحركات التحليلية</td><td>§2، ص 4</td></tr>
+<tr class="grp"><td colspan="3">ب. الخطوة 1: Apache Kafka</td></tr>
+<tr><td class="rid">R-03</td><td>Kafka نظام رسائل موزع يعمل كالعمود الفقري لجمع البيانات في الوقت الحقيقي</td><td>§2.1</td></tr>
+<tr><td class="rid">R-04</td><td>مواضيع منفصلة لكل نوع: <code>system_logs</code>، <code>network_flows</code>، <code>auth_events</code></td><td>§2.1</td></tr>
+<tr><td class="rid">R-05</td><td>عدم فقدان أي حدث أمني مهما كان حجم البيانات</td><td>§2.1 (الفائدة)</td></tr>
+<tr><td class="rid">R-06</td><td>ضمان ترتيب الأحداث وإمكانية إعادة معالجتها</td><td>§2.1 (الفائدة)</td></tr>
+<tr><td class="rid">R-07</td><td>تحمّل ملايين الرسائل في الثانية، وعدم تفويت أي نشاط حتى في أوقات الذروة</td><td>§2.1 (الفائدة)</td></tr>
+<tr class="grp"><td colspan="3">ج. الخطوة 2: FastAPI</td></tr>
+<tr><td class="rid">R-08</td><td>بوابة لاستقبال البيانات من <strong>الوكلاء (Agents) المنتشرين على الأجهزة المختلفة</strong></td><td>§2.2</td></tr>
+<tr><td class="rid">R-09</td><td>معالجة غير متزامنة (async) تتيح استقبال آلاف الطلبات المتزامنة دون تأخير</td><td>§2.2</td></tr>
+<tr><td class="rid">R-10</td><td>توثيق تلقائي للـ API وتحقق تلقائي من صحة البيانات</td><td>§2.2 (الفائدة)</td></tr>
+<tr class="grp"><td colspan="3">د. الخطوة 3: أنواع البيانات</td></tr>
+<tr><td class="rid">R-11</td><td>سجلات النظام: من <strong>Syslog و Windows Event Log</strong> بتنسيق JSON</td><td>§2.3</td></tr>
+<tr><td class="rid">R-12</td><td>تدفقات الشبكة: من <strong>NetFlow/IPFIX و PCAP</strong> بتنسيق «خصائص مستخرجة»</td><td>§2.3</td></tr>
+<tr><td class="rid">R-13</td><td>استدعاءات النظام: من <strong>Auditd و eBPF</strong> بتنسيق «تسلسلات استدعاء»</td><td>§2.3</td></tr>
+<tr><td class="rid">R-14</td><td>سلوك المستخدم: من <strong>سجلات المصادقة والوصول</strong> بتنسيق «متجهات الجلسات»</td><td>§2.3</td></tr>
+<tr><td class="rid">R-15</td><td>جمع من مصادر متعددة لرؤية شاملة 360° (هجمات لا تظهر في السجلات تترك أثرًا في الشبكة أو سلوك المستخدم)</td><td>§2، ص 5</td></tr>
+<tr class="grp"><td colspan="3">هـ. متطلبات من أقسام أخرى تمس طبقة الاستشعار</td></tr>
+<tr><td class="rid">R-16</td><td>كل مكون من مكونات ADIS في حاوية Docker مستقلة (توسع أفقي وتحديث دون توقف)</td><td>§9.1</td></tr>
+<tr><td class="rid">R-17</td><td>مراقبة مستمرة لزمن الاستجابة واستخدام الموارد (ومعدل الكشف والإنذارات الكاذبة للمراحل اللاحقة)</td><td>§9.2</td></tr>
+<tr><td class="rid">R-18</td><td>بيئة قابلة للتكرار تُنشأ بأمر واحد <code>docker-compose up</code></td><td>§8.3</td></tr>
+<tr><td class="rid">R-19</td><td>متوسط وقت الكشف (MTTD) أقل من 50 ms — والاستقبال جزء من هذا المسار</td><td>§10</td></tr>
+</tbody></table></div>
+
+<!-- ============================================================ -->
+<h2 id="matrix">5. مصفوفة المطابقة</h2>
+<p><span class="y">✔</span> محقق &nbsp; <span class="p">◐</span> جزئي &nbsp; <span class="n">✘</span> غير محقق &nbsp; <span class="q">؟</span> غير مُقاس</p>
+<div class="tbl"><table>
+<thead><tr><th>المتطلب</th><th class="col-main">المشروع الأساسي</th><th class="col-muna">muna</th><th class="col-omran">omran</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="4">أ. الهدف والتوحيد</td></tr>
+<tr><td><span class="rid">R-01</span> جميع المصادر</td>
+<td><span class="p">◐</span> ملفات log حقيقية فقط؛ المصادقة والشبكة <strong>محاكاة</strong></td>
+<td><span class="p">◐</span> Windows (نظام، تطبيقات، مصادقة) + PCAP + التقاط حي + NetFlow؛ لا Linux ولا syscalls</td>
+<td><span class="n">✘</span> حزم الشبكة على جهاز واحد فقط</td></tr>
+<tr><td><span class="rid">R-02</span> تنسيق موحد</td>
+<td><span class="y">✔</span> canonical v1.0 + JSON Schema مثبت + خدمة Normalizer</td>
+<td><span class="y">✔</span> <code>SecurityEvent v1</code> لكل المجمّعات</td>
+<td><span class="n">✘</span> سجل خاص بالحزمة، ليس صيغة مشتركة</td></tr>
+<tr class="grp"><td colspan="4">ب. Kafka</td></tr>
+<tr><td><span class="rid">R-03</span> Kafka عمود فقري</td>
+<td><span class="y">✔</span> aiokafka، <code>acks=all</code>، idempotent</td>
+<td><span class="y">✔</span> aiokafka، <code>acks=all</code>، idempotent</td>
+<td><span class="p">◐</span> kafka-python متزامن، بلا تحقق من الإرسال</td></tr>
+<tr><td><span class="rid">R-04</span> topics حسب النوع وبالأسماء المحددة</td>
+<td><span class="p">◐</span> منفصلة حسب النوع، لكن بأسماء مختلفة: <code>adis.system.events</code>، <code>adis.network.events</code>، <code>adis.auth.events</code></td>
+<td><span class="y">✔</span> الأسماء الثلاثة نفسها حرفيًا</td>
+<td><span class="n">✘</span> topic واحد <code>network-packets</code></td></tr>
+<tr><td><span class="rid">R-05</span> عدم فقدان أي حدث</td>
+<td><span class="y">✔</span> 202 بعد التأكيد فقط، spool مشفر في الـ Agent، dead-letter؛ انقطاع حقيقي للقاعدة و Kafka بصفر فقد</td>
+<td><span class="y">✔</span> «published» بعد التأكيد فقط، checkpoints وإعادة محاولة؛ (التعافي من انقطاع Kafka مختبر بنسخة وهمية)</td>
+<td><span class="n">✘</span> فقد صامت (O-03، O-11)</td></tr>
+<tr><td><span class="rid">R-06</span> الترتيب وإعادة المعالجة</td>
+<td><span class="y">✔</span> مفتاح <code>host_id</code>، commit يدوي، اختبار replay للـ Normalizer</td>
+<td><span class="y">✔</span> مفتاح <code>hostname</code>، consumer group لكاتب القاعدة، <code>adis-consume --from-beginning</code></td>
+<td><span class="p">◐</span> لا مفتاح (لا ترتيب لكل جهاز)، والمستهلك يقرأ «latest» فقط</td></tr>
+<tr><td><span class="rid">R-07</span> ملايين الرسائل/ثانية</td>
+<td><span class="n">✘</span> مُقاس: استقبال 358–678 حدثًا/ثانية، وخط الأنابيب الكامل 7–13 حدثًا/ثانية؛ broker واحد</td>
+<td><span class="n">✘</span> غير مُقاس؛ طلب HTTP لكل حدث؛ PCAP ~10,000 حزمة/ثانية؛ broker واحد</td>
+<td><span class="n">✘</span> طلب HTTP + flush لكل حزمة</td></tr>
+<tr class="grp"><td colspan="4">ج. FastAPI</td></tr>
+<tr><td><span class="rid">R-08</span> وكلاء على أجهزة مختلفة</td>
+<td><span class="y">✔</span> Agent بهوية وتسجيل وتوكن لكل عميل، https إلزامي في الإنتاج؛ اختُبر بـ 50 جهازًا في Phase 7</td>
+<td><span class="p">◐</span> المجمّعات تعمل على نفس جهاز البوابة؛ البوابة على <code>127.0.0.1</code> بلا مصادقة؛ (NetFlow يستقبل من أجهزة شبكة مسموحة)</td>
+<td><span class="n">✘</span> سكربت واحد إلى <code>127.0.0.1</code></td></tr>
+<tr><td><span class="rid">R-09</span> async وآلاف الطلبات</td>
+<td><span class="y">✔</span> async + حد للطلبات المتزامنة + rate limit؛ مختبر تحت حمل</td>
+<td><span class="y">✔</span> async؛ (لم يُختبر تحت حمل)</td>
+<td><span class="p">◐</span> endpoint متزامن مع flush يحجب لكل طلب</td></tr>
+<tr><td><span class="rid">R-10</span> توثيق وتحقق تلقائيان</td>
+<td><span class="y">✔</span> OpenAPI مع المخططات الموحدة وأمثلة</td>
+<td><span class="y">✔</span> Swagger مع أمثلة، تحقق صارم</td>
+<td><span class="p">◐</span> توثيق FastAPI الافتراضي؛ تحقق ضعيف</td></tr>
+<tr class="grp"><td colspan="4">د. أنواع البيانات</td></tr>
+<tr><td><span class="rid">R-11</span> Syslog + Windows Event Log ← JSON</td>
+<td><span class="p">◐</span> يقرأ ملفات log (منها ملفات syslog على Linux) كأسطر خام؛ لا Windows Event Log ولا استقبال syslog</td>
+<td><span class="p">◐</span> Windows Event Log كامل (System/Application + Security)؛ لا Syslog</td>
+<td><span class="n">✘</span></td></tr>
+<tr><td><span class="rid">R-12</span> NetFlow/IPFIX + PCAP ← خصائص مستخرجة</td>
+<td><span class="n">✘</span> مخطط <code>NetworkFlowEvent</code> جاهز، لكن المصدر محاكٍ فقط؛ الخصائص تُحسب في Phase 2</td>
+<td><span class="y">✔</span> NetFlow v5/v9/IPFIX + PCAP/PCAPNG + التقاط حي؛ لكل flow: مدة، حزم، بايتات، TCP flags، سبب الانتهاء + ملخصات 1/5 دقائق</td>
+<td><span class="p">◐</span> التقاط حي فقط، حزمة بحزمة، بلا تجميع ولا خصائص</td></tr>
+<tr><td><span class="rid">R-13</span> Auditd + eBPF ← تسلسلات استدعاء</td>
+<td><span class="n">✘</span> (مخطط <code>ProcessEvent</code> موجود بلا مصدر)</td>
+<td><span class="n">✘</span></td>
+<td><span class="n">✘</span></td></tr>
+<tr><td><span class="rid">R-14</span> سجلات المصادقة والوصول ← متجهات الجلسات</td>
+<td><span class="n">✘</span> مصادقة محاكاة فقط؛ لا فئة لسلوك المستخدم ولا جلسات</td>
+<td><span class="p">◐</span> بداية/نهاية الجلسة ومدتها من 4624/4634 حقيقية؛ ليست «متجهات»، ولا سجلات وصول للملفات</td>
+<td><span class="n">✘</span></td></tr>
+<tr><td><span class="rid">R-15</span> رؤية 360° من مصادر متعددة</td>
+<td><span class="p">◐</span> تيار موحد واحد بـ <code>host_id</code> و <code>trace_id</code> يسهل الربط، لكن المصادر اصطناعية</td>
+<td><span class="p">◐</span> 3 أنواع حقيقية على جهاز Windows + أجهزة الشبكة</td>
+<td><span class="n">✘</span> مصدر واحد</td></tr>
+<tr class="grp"><td colspan="4">هـ. النشر والمراقبة والأداء</td></tr>
+<tr><td><span class="rid">R-16</span> حاوية Docker لكل مكون</td>
+<td><span class="y">✔</span> صورة غير root، خدمات <code>api</code> و <code>normalizer</code> وغيرها في compose</td>
+<td><span class="n">✘</span> التطبيق يعمل أصليًا على Windows؛ compose لـ Kafka و PostgreSQL فقط وغير مختبر</td>
+<td><span class="n">✘</span></td></tr>
+<tr><td><span class="rid">R-17</span> مراقبة زمن الاستجابة والموارد</td>
+<td><span class="y">✔</span> Prometheus (زمن الطلبات، أحجام، أخطاء) + لوحة Grafana</td>
+<td><span class="p">◐</span> ملفات حالة JSON و <code>adis-doctor</code>؛ لا مقاييس</td>
+<td><span class="n">✘</span></td></tr>
+<tr><td><span class="rid">R-18</span> <code>docker-compose up</code></td>
+<td><span class="y">✔</span> مُتحقَّق منه</td>
+<td><span class="p">◐</span> ملفات compose موجودة لم تُشغَّل (لا WSL)</td>
+<td><span class="n">✘</span></td></tr>
+<tr><td><span class="rid">R-19</span> MTTD &lt; 50 ms</td>
+<td><span class="n">✘</span> الاستقبال وحده إلى التيار الموحد: p50 = 63 ms (أحداث مفردة)؛ MTTD الكامل 0.64 s بلا حمل</td>
+<td><span class="q">؟</span> غير مُقاس</td>
+<td><span class="q">؟</span> غير مُقاس</td></tr>
+<tr class="grp"><td>المجموع</td><td class="c">12 / 19</td><td class="c">11.5 / 19</td><td class="c">2.5 / 19</td></tr>
+</tbody></table></div>
+
+<!-- ============================================================ -->
+<h2 id="gaps">6. الفجوات (مع الأدلة)</h2>
+
+<h3>6.1 فجوات مشتركة لا تحققها أي نسخة</h3>
+
+<article class="issue" id="G-01" data-sev="high">
+  <div class="hd"><span class="id">G-01</span><span class="sev high">عالٍ</span><span class="src all">الثلاثة</span><span class="ttl">استدعاءات النظام (Auditd / eBPF) غير موجودة</span></div>
+  <dl>
+    <dt>المطلوب</dt><dd>نوع بيانات كامل في جدول §2.3: «استدعاءات النظام ← Auditd، eBPF ← تسلسلات استدعاء». و adis.pdf يضع eBPF ضمن تقنيات الطبقة 1.</dd>
+    <dt>الواقع</dt><dd>لا مجمّع في أي نسخة. الأساسي لديه مخطط <code>ProcessEvent</code> بلا مصدر (ميزات العمليات في Phase 2 دائمًا صفر، OD-25). muna Windows فقط. omran شبكة فقط.</dd>
+    <dt>الأثر</dt><dd>لا رؤية لسلوك العمليات على مستوى النواة؛ هجمات رفع الصلاحيات (LinPEAS في سيناريوهات §8) لا تترك أثرًا مجمّعًا.</dd>
+    <dt>الحل</dt><dd>مجمّع auditd على Linux كبداية (قراءة فقط، بلا تغيير سياسات التدقيق تلقائيًا)، ثم eBPF في مختبر؛ وعلى Windows حدث 4688 أو Sysmon كمكافئ.</dd>
+  </dl>
+</article>
+
+<article class="issue" id="G-02" data-sev="med">
+  <div class="hd"><span class="id">G-02</span><span class="sev med">متوسط</span><span class="src all">الثلاثة</span><span class="ttl">لا استقبال لـ Syslog</span></div>
+  <dl>
+    <dt>المطلوب</dt><dd>§2.3: سجلات النظام من Syslog و Windows Event Log.</dd>
+    <dt>الواقع</dt><dd>الأساسي يقرأ ملفات log المحلية فقط (ومنها ملفات syslog كأسطر خام)، بلا استقبال Syslog من أجهزة أخرى (UDP/TCP 514 أو RFC 5424). muna تذكر أن مجمّعات Linux «اختيارية وغير منفذة». omran لا شيء.</dd>
+    <dt>الأثر</dt><dd>خوادم Linux والجدران النارية وأجهزة الشبكة لا ترسل سجلاتها.</dd>
+    <dt>الحل</dt><dd>مُستقبِل Syslog يحلل RFC 3164/5424 إلى <code>SystemEvent</code>، يستمع على عنوان مسموح فقط.</dd>
+  </dl>
+</article>
+
+<article class="issue" id="G-03" data-sev="med">
+  <div class="hd"><span class="id">G-03</span><span class="sev med">متوسط</span><span class="src all">الثلاثة</span><span class="ttl">«ملايين الرسائل في الثانية» غير مُثبت</span></div>
+  <dl>
+    <dt>المطلوب</dt><dd>§2.1: Kafka يتحمل ملايين الرسائل ولا يفوت أي نشاط في أوقات الذروة.</dd>
+    <dt>الواقع</dt><dd>الأساسي: أعلى معدل استقبال مُقاس 678 حدثًا/ثانية، وخط الأنابيب الكامل 7–13 حدثًا/ثانية (<code>docs/PHASE_7_RELIABILITY_EVALUATION.md</code>)، وعلى Supabase المستضاف 0.16 حدث/ثانية. muna: لا قياس، طلب HTTP لكل حدث. omran: طلب + flush لكل حزمة. والثلاثة تعمل على broker واحد بلا تكرار.</dd>
+    <dt>الأثر</dt><dd>الرقم في pentra.pdf وصف لقدرة Kafka نفسه، وليس لهذا النظام؛ عنق الزجاجة في HTTP والقاعدة والمعالجة، لا في Kafka.</dd>
+    <dt>الحل</dt><dd>تحديد هدف واقعي مُقاس لـ Phase 1 (مثلًا أحداث/ثانية لكل Agent ولكل بوابة)، اختبار حمل له، وتوثيق الفرق عن نص pentra.pdf.</dd>
+  </dl>
+</article>
+
+<article class="issue" id="G-04" data-sev="med">
+  <div class="hd"><span class="id">G-04</span><span class="sev med">متوسط</span><span class="src all">الثلاثة</span><span class="ttl">MTTD أقل من 50 ms غير قابل للتحقيق بالمعمارية الحالية</span></div>
+  <dl>
+    <dt>المطلوب</dt><dd>§10: متوسط وقت الكشف &lt; 50 ms (والجدول يقول «النتيجة المحققة 50ms» نقلًا عن أبحاث).</dd>
+    <dt>الواقع</dt><dd>في الأساسي، مرحلة الاستقبال وحدها (من الإرسال حتى <code>adis.security.events</code>) p50 = 63 ms للأحداث المفردة و 617 ms للدفعات؛ و MTTD الكامل المقاس 0.64 s بلا حمل، و 46 s أو أكثر تحت حمل. muna و omran لم تقيسا.</dd>
+    <dt>الأثر</dt><dd>الهدف مستحيل ما دام المسار HTTP ← Kafka ← Normalizer ← قاعدة ← Kafka ← كشف. المؤشر في pentra.pdf منقول من الدراسات المرجعية («المذكورة في الدراسة الأصلية»)، وليس مقاسًا على النظام.</dd>
+    <dt>الحل</dt><dd>تعديل الهدف في المواصفة إلى رقم مقاس، أو تعريف MTTD بدقة (من أي لحظة إلى أي لحظة).</dd>
+  </dl>
+</article>
+
+<article class="issue" id="G-05" data-sev="med">
+  <div class="hd"><span class="id">G-05</span><span class="sev med">متوسط</span><span class="src all">الثلاثة</span><span class="ttl">لا أحد ينتج «متجهات الجلسات»</span></div>
+  <dl>
+    <dt>المطلوب</dt><dd>§2.3: سلوك المستخدم من سجلات المصادقة والوصول بتنسيق «متجهات الجلسات».</dd>
+    <dt>الواقع</dt><dd>muna الأقرب: سجل <code>user_session_started/ended</code> مع مدة الجلسة (مرسل إلى <code>auth_events</code>). الأساسي: لا فئة لسلوك المستخدم؛ ميزات المصادقة تُحسب في Phase 2 لكل جهاز لا لكل جلسة. omran: لا شيء. ولا نسخة تجمع «سجلات الوصول» (مثل الوصول للملفات).</dd>
+    <dt>الأثر</dt><dd>أحد المصادر الأربعة في pentra.pdf غير مغطى.</dd>
+    <dt>الحل</dt><dd>تعريف «متجه الجلسة» (المدة، عدد المحاولات الفاشلة قبلها، نوع الدخول، المصدر، الوقت...) وإنتاجه من أحداث muna.</dd>
+  </dl>
+</article>
+
+<article class="issue" id="G-06" data-sev="low">
+  <div class="hd"><span class="id">G-06</span><span class="sev low">منخفض</span><span class="src all">المواصفة</span><span class="ttl">أربعة أنواع بيانات وثلاثة topics فقط</span></div>
+  <dl>
+    <dt>التفصيل</dt><dd>pentra.pdf يسمي 3 topics لكن جدوله فيه 4 أنواع؛ لا يحدد أين تذهب «استدعاءات النظام» ولا «سلوك المستخدم».</dd>
+    <dt>الواقع</dt><dd>muna ترسل سلوك المستخدم إلى <code>auth_events</code>؛ الأساسي يرسل فئة <code>process</code> إلى <code>adis.system.events</code>.</dd>
+    <dt>الحل</dt><dd>قرار مكتوب في المواصفة.</dd>
+  </dl>
+</article>
+
+<h3>6.2 فجوات خاصة بكل نسخة</h3>
+
+<article class="issue" id="G-07" data-sev="high">
+  <div class="hd"><span class="id">G-07</span><span class="sev high">عالٍ</span><span class="src main">الأساسي</span><span class="ttl">مصادر البيانات المطلوبة غير موجودة</span></div>
+  <dl>
+    <dt>المطلوب</dt><dd>R-11 و R-12 و R-14: Windows Event Log، NetFlow/IPFIX، PCAP، سجلات المصادقة.</dd>
+    <dt>الواقع</dt><dd>الـ Agent يقرأ ملفات log ويشغّل محاكيات للمصادقة والشبكة فقط (<code>apps/agent/collectors/logfile.py</code>، <code>simulation.py</code>). درجة «مصادر البيانات» 0.5 من 4.</dd>
+    <dt>الحل</dt><dd>نقل مجمّعات muna (الجلسة المقترحة في التقرير الأول) يرفع هذه الدرجة إلى 2 من 4.</dd>
+  </dl>
+</article>
+
+<article class="issue" id="G-08" data-sev="med">
+  <div class="hd"><span class="id">G-08</span><span class="sev med">متوسط</span><span class="src main">الأساسي</span><span class="ttl">أسماء الـ topics تخالف pentra.pdf</span></div>
+  <dl>
+    <dt>المطلوب</dt><dd>R-04: <code>system_logs</code>، <code>network_flows</code>، <code>auth_events</code>.</dd>
+    <dt>الواقع</dt><dd><code>adis.system.events</code>، <code>adis.network.events</code>، <code>adis.auth.events</code> (<code>packages/kafka/topics.py:16-25</code>)، وكل المراحل 2–7 تعتمد عليها.</dd>
+    <dt>الحل</dt><dd>الأسهل: إبقاؤها وتوثيق التطابق كانحراف مقصود عن المواصفة؛ إعادة التسمية تمس كل المراحل.</dd>
+  </dl>
+</article>
+
+<article class="issue" id="G-09" data-sev="med">
+  <div class="hd"><span class="id">G-09</span><span class="sev med">متوسط</span><span class="src muna">muna</span><span class="ttl">لا وكلاء على أجهزة أخرى</span></div>
+  <dl>
+    <dt>المطلوب</dt><dd>R-08: البوابة تستقبل من وكلاء منتشرين على الأجهزة المختلفة.</dd>
+    <dt>الواقع</dt><dd>البوابة على <code>127.0.0.1</code> بلا مصادقة (<code>gateway/routes/events.py:60-74</code>)، والمجمّعات تعمل على نفس الجهاز. فتحها للشبكة بوضعها الحالي يسمح لأي جهاز بتزوير أحداث.</dd>
+    <dt>الحل</dt><dd>توكن لكل وكيل + TLS، أو تشغيل المجمّعات داخل Agent الأساسي.</dd>
+  </dl>
+</article>
+
+<article class="issue" id="G-10" data-sev="med">
+  <div class="hd"><span class="id">G-10</span><span class="sev med">متوسط</span><span class="src muna">muna</span><span class="ttl">غير مُحوَّاة ولا تعمل بـ docker-compose up</span></div>
+  <dl>
+    <dt>المطلوب</dt><dd>R-16 و R-18: كل مكون في حاوية، وبيئة بأمر واحد.</dd>
+    <dt>الواقع</dt><dd>التطبيق يعمل أصليًا على Windows عبر سكربتات PowerShell؛ ملفا compose لـ Kafka و PostgreSQL لم يُشغَّلا. ومجمّعات Windows لا يمكن أصلًا وضعها في حاويات Linux.</dd>
+    <dt>الحل</dt><dd>البوابة والكاتب في حاويات؛ مجمّعات Windows تبقى كوكيل على المضيف.</dd>
+  </dl>
+</article>
+
+<article class="issue" id="G-11" data-sev="low">
+  <div class="hd"><span class="id">G-11</span><span class="sev low">منخفض</span><span class="src muna">muna</span><span class="ttl">لا مقاييس لزمن الاستجابة والموارد</span></div>
+  <dl>
+    <dt>المطلوب</dt><dd>R-17.</dd>
+    <dt>الواقع</dt><dd>ملفات حالة JSON وأداة <code>adis-doctor</code> فقط؛ لا Prometheus.</dd>
+    <dt>الحل</dt><dd><code>packages/observability</code> من الأساسي.</dd>
+  </dl>
+</article>
+
+<article class="issue" id="G-12" data-sev="high">
+  <div class="hd"><span class="id">G-12</span><span class="sev high">عالٍ</span><span class="src omran">omran</span><span class="ttl">يخالف معظم متطلبات pentra.pdf</span></div>
+  <dl>
+    <dt>الواقع</dt><dd>2.5 من 19: لا تنسيق موحد (R-02)، لا topics حسب النوع (R-04)، فقد صامت (R-05)، لا وكلاء متعددون (R-08)، لا NetFlow ولا ملفات PCAP ولا خصائص (R-12)، مصدر واحد (R-15)، ولا Docker ولا مراقبة (R-16 إلى R-18).</dd>
+    <dt>الحل</dt><dd>الاستبدال بالمكونات الموجودة في النسختين الأخريين (التفاصيل في التقرير الأول، O-01 إلى O-20).</dd>
+  </dl>
+</article>
+
+<article class="issue" id="G-13" data-sev="med">
+  <div class="hd"><span class="id">G-13</span><span class="sev med">متوسط</span><span class="src all">الحوكمة</span><span class="ttl">ثلاث مواصفات ولا واحدة معتمدة</span></div>
+  <dl>
+    <dt>الواقع</dt><dd>pentra.pdf (2026-03-20)، adis.pdf (2026-05-10، أحدث)، و adis_phase1.html (topic واحد <code>security-events</code>). الأساسي لا يشير لأي منها، و muna تشير إلى adis.pdf، و omran لا يشير لشيء.</dd>
+    <dt>الأثر</dt><dd>هذا يفسر اختلاف أسماء الـ topics ونقاط الإدخال ونطاق المرحلة بين النسخ الثلاث.</dd>
+    <dt>الحل</dt><dd>اعتماد مواصفة واحدة (ولتكن pentra.pdf أو adis.pdf) وتسجيل الانحرافات المقصودة عنها في <code>docs/ARCHITECTURE.md</code>.</dd>
+  </dl>
+</article>
+
+<!-- ============================================================ -->
+<h2 id="extras">7. ما في النسخ وليس في pentra.pdf</h2>
+<p>هذه ليست أخطاء؛ بعضها مطلوب من <code>CLAUDE.md</code>، وبعضها قرارات تصميم. لكنها توضح أن نطاق Phase 1 في النسخ أوسع أو مختلف عن pentra.pdf.</p>
+<div class="tbl"><table>
+<thead><tr><th>الإضافة</th><th class="col-main">الأساسي</th><th class="col-muna">muna</th><th class="col-omran">omran</th><th>علاقتها بـ pentra.pdf</th></tr></thead>
+<tbody>
+<tr><td>تخزين دائم في قاعدة بيانات ضمن Phase 1</td><td>Supabase/PostgreSQL + Redis</td><td>PostgreSQL محلي</td><td>CSV</td><td>pentra.pdf يضع PostgreSQL و Redis في المرحلة الخامسة (الذاكرة المناعية)، ولا يذكر قاعدة في المرحلة الأولى.</td></tr>
+<tr><td>مصادقة، صلاحيات، rate limiting</td><td>نعم</td><td>للقراءة فقط</td><td>لا</td><td>غير مذكورة في pentra.pdf إطلاقًا؛ مطلوبة في <code>CLAUDE.md</code>.</td></tr>
+<tr><td>dead-letter وإعادة المحاولة المنظمة</td><td>نعم</td><td>جزئيًا (processing_errors)</td><td>لا</td><td>تحقق عمليًا «عدم فقد أي حدث» (R-05).</td></tr>
+<tr><td>حماية الخصوصية (حذف الأسرار، عدم إرسال SIDs، تجهيل الحسابات)</td><td>حجب الأسرار</td><td>متقدمة</td><td>لا</td><td>غير مذكورة؛ ضرورية لأن pentra.pdf يطلب جمع «كل» البيانات.</td></tr>
+<tr><td>ضمانات الالتقاط الآمن (واجهة صريحة، تأكيد، غير promiscuous)</td><td>—</td><td>نعم</td><td>عكسها</td><td>pentra.pdf لا يضع حدودًا للجمع؛ <code>CLAUDE.md</code> يشترط مختبرًا مصرحًا.</td></tr>
+<tr><td>Agent بـ spool مشفر و backpressure</td><td>نعم</td><td>checkpoints</td><td>لا</td><td>يدعم R-05 و R-08.</td></tr>
+<tr><td>ملخصات flows لكل 1/5 دقائق ومخزون الأجهزة</td><td>—</td><td>نعم</td><td>—</td><td>تتجاوز «الخصائص المستخرجة» المطلوبة.</td></tr>
+<tr><td>Phase 0 (أساس المستودع)</td><td>نعم</td><td>—</td><td>—</td><td>غير موجودة في pentra.pdf.</td></tr>
+</tbody></table></div>
+
+<!-- ============================================================ -->
+<h2 id="beyond">8. ما بعد Phase 1: مراحل pentra.pdf ومؤشراته</h2>
+<p>muna و omran تتوقفان عند المرحلة الأولى (muna تنص صراحة: لا كشف ولا نماذج ولا استجابة). المشروع الأساسي وحده يغطي المراحل التالية، وهذا ملخص للسياق فقط:</p>
+<div class="tbl"><table>
+<thead><tr><th>مرحلة pentra.pdf</th><th class="col-main">المشروع الأساسي</th><th class="col-muna">muna</th><th class="col-omran">omran</th></tr></thead>
+<tbody>
+<tr><td>1. الاستشعار وجمع البيانات</td><td>Phase 1 ✅ (بفجوات المصادر أعلاه)</td><td>✅ جزئي</td><td>جزئي جدًا</td></tr>
+<tr><td>2. كشف الانحرافات (Isolation Forest + Autoencoder + إحصائيات، S = 0.4·IF + 0.4·AE + 0.2·Stat، عتبات ديناميكية)</td><td>Phase 2 ✅؛ نفس الأوزان 0.4/0.4/0.2 (<code>docs/FUSION.md</code>)</td><td>—</td><td>—</td></tr>
+<tr><td>3. نواة التعلم المناعي (بيئة RL، DQN، K-Means و DBSCAN)</td><td>Phase 3 ✅؛ الـ DQN مرفوض من بوابات القبول ويعمل في الظل فقط</td><td>—</td><td>—</td></tr>
+<tr><td>4. الاستجابة التكيفية (حظر IP، عزل، Honeypots، جدار حماية)</td><td>Phase 4 ✅ كمحاكاة مختبر فقط؛ Honeypot معطل افتراضيًا، و <code>DRY_RUN</code> — أكثر تحفظًا من pentra.pdf عمدًا (شرط الأمان في <code>CLAUDE.md</code>)</td><td>—</td><td>—</td></tr>
+<tr><td>5. الذاكرة المناعية (PostgreSQL + Redis + تعلم موزع)</td><td>Phase 5 ✅؛ بلا تعلم موزع/مشاركة بين النسخ</td><td>—</td><td>—</td></tr>
+<tr><td>6. الواجهة (React، WebSocket، Cytoscape.js)</td><td>Phase 6 🟡 (Next.js)</td><td>—</td><td>—</td></tr>
+<tr><td>7. الاختبار (NSL-KDD، CICIDS2017، UNSW-NB15، محاكاة هجمات، Docker Compose)</td><td>Phase 7 🟡؛ NSL-KDD و CICIDS2017 + CSE-CIC-IDS2018 للتعميم؛ محاكاة آمنة بدل أدوات الهجوم الحقيقية</td><td>—</td><td>—</td></tr>
+<tr><td>8. النشر والتشغيل</td><td>لم تبدأ</td><td>—</td><td>—</td></tr>
+</tbody></table></div>
+
+<h3>مؤشرات الأداء (§10): هدف pentra.pdf مقابل قياس المشروع الأساسي</h3>
+<div class="callout warn">عمود «النتيجة المحققة» في pentra.pdf منقول من «الدراسة الأصلية والأبحاث المرجعية» حسب نص الملف نفسه، وليس قياسًا على هذا النظام. الأرقام هنا من تقارير المشروع الأساسي.</div>
+<div class="tbl"><table>
+<thead><tr><th>المؤشر</th><th>هدف pentra.pdf</th><th>المشروع الأساسي (مُقاس)</th><th>المصدر</th></tr></thead>
+<tbody>
+<tr><td>معدل الكشف</td><td>95%+</td><td>F1 = 0.991 في المختبر وكشف 8 من 8 سيناريوهات جديدة، لكن ROC-AUC = 0.52 على شبكة غير مرئية (CSE-CIC-IDS2018)</td><td><code>IMPLEMENTATION_STATUS.md</code> (P7-002 مفتوحة)</td></tr>
+<tr><td>الإنذارات الكاذبة</td><td>أقل من 5%</td><td>ما زال يعلّم 4 من 5 عمليات مشروعة خارج سياقها المتعلَّم</td><td>نفس المصدر</td></tr>
+<tr><td>MTTD</td><td>&lt; 50 ms</td><td>0.64 s بلا حمل؛ p50 = 46 s تحت حمل صغير</td><td><code>PHASE_7_FINAL_EVALUATION.md</code></td></tr>
+<tr><td>MTTR</td><td>&lt; 1 s</td><td>6.5 s متوسط (2.2 s لتنبيه تلقائي؛ ~8.7 s لإجراء مختبر بموافقة)</td><td>نفس المصدر</td></tr>
+</tbody></table></div>
+
+<!-- ============================================================ -->
+<h2 id="plan">9. ما يلزم لمطابقة pentra.pdf في Phase 1</h2>
+<div class="tbl"><table>
+<thead><tr><th>#</th><th>الإجراء</th><th>يرفع</th><th>الدرجة المتوقعة للنسخة الموحدة</th></tr></thead>
+<tbody>
+<tr><td class="c">1</td><td>اعتماد مواصفة واحدة وتسجيل الانحرافات المقصودة (أسماء الـ topics، تخزين Phase 1) — <a href="#G-13">G-13</a></td><td>R-04 (كتوثيق)</td><td rowspan="3">الأساسي + muna ≈ <strong>15 / 19</strong></td></tr>
+<tr><td class="c">2</td><td>نقل مجمّعات muna إلى Agent الأساسي (Windows Event Log، المصادقة، PCAP، الالتقاط الحي، NetFlow)</td><td>R-01، R-11، R-12، R-14، R-15</td></tr>
+<tr><td class="c">3</td><td>تعريف «متجه الجلسة» وإنتاجه من أحداث الجلسات</td><td>R-14 → ✔</td></tr>
+<tr><td class="c">4</td><td>مُستقبِل Syslog</td><td>R-11 → ✔</td><td rowspan="2">≈ 16.5 / 19</td></tr>
+<tr><td class="c">5</td><td>مجمّع auditd (ثم eBPF في مختبر)</td><td>R-13</td></tr>
+<tr><td class="c">6</td><td>أهداف أداء واقعية ومقاسة بدل «ملايين/ثانية» و «50 ms»</td><td>R-07، R-19 (بعد تعديل المواصفة)</td><td>حسب القرار</td></tr>
+</tbody></table></div>
+<p>لم يُنفَّذ أي من هذه الإجراءات؛ الخطوة 2 مقترحة كجلسة منفصلة في التقرير الأول.</p>
+
+<footer>
+  أُعد في 2026-10-19 بقراءة كل صفحات pentra.pdf و adis.pdf كصور (النص العربي فيهما غير قابل للاستخراج)، وبالاعتماد على فحص الكود والاختبارات في <a href="PHASE_1_COMPARISON_REPORT.html">التقرير المرافق</a>. لم يُعدَّل أي ملف في النسخ الثلاث.
+</footer>
+</main>
+</body>
+</html>

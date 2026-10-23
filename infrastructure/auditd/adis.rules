@@ -1,0 +1,29 @@
+## ADIS audit rules (Linux auditd): the system calls the ADIS agent turns into call sequences.
+##
+## Install them only on hosts you own or are authorized to monitor, as root:
+##   cp infrastructure/auditd/adis.rules /etc/audit/rules.d/adis.rules && augenrules --load
+## Then point the agent at the audit log (it must be readable by the agent's group):
+##   AGENT_AUDIT_LOG_FILE=/var/log/audit/audit.log
+## The agent only reads the log; it never loads or changes audit rules.
+##
+## log_format = ENRICHED in /etc/audit/auditd.conf adds the syscall name to each record
+## (the agent also maps x86_64 and aarch64 numbers itself). Command-line arguments
+## (EXECVE records) are never collected by the agent.
+
+## Process execution
+-a always,exit -F arch=b64 -S execve,execveat -k adis_exec
+-a always,exit -F arch=b32 -S execve -k adis_exec
+
+## Network: outgoing connections, listeners, accepted connections
+-a always,exit -F arch=b64 -S connect,bind,listen,accept,accept4 -F success=1 -k adis_net
+
+## Identity and privilege changes
+-a always,exit -F arch=b64 -S setuid,setgid,setreuid,setresuid,capset -k adis_priv
+
+## Process tampering, namespaces, kernel modules
+-a always,exit -F arch=b64 -S ptrace,unshare,setns,chroot -k adis_isolation
+-a always,exit -F arch=b64 -S init_module,finit_module,delete_module -k adis_modules
+-a always,exit -F arch=b64 -S memfd_create,bpf -k adis_inmemory
+
+## File removal and permission changes by real users (auid >= 1000)
+-a always,exit -F arch=b64 -S unlinkat,renameat2,fchmodat,fchownat -F auid>=1000 -F auid!=unset -k adis_files

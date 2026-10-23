@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>تنفيذ Phase 1</title>
+<meta name="description" content="تنفيذ المرحلة الأولى كاملة حسب pentra.pdf في المشروع الأساسي: دمج muna، وSyslog، واستدعاءات النظام، ومتجهات الجلسات، والاختبار على بيانات حقيقية ونتائجه.">
+<style>
+:root{
+  --bg:#f7f7f5; --surface:#ffffff; --surface-2:#f0f0ec; --text:#1d1d1b; --muted:#5f5f5a; --border:#deded8;
+  --accent:#1f5fa8; --accent-soft:#e3edf8;
+  --crit:#b3261e; --crit-bg:#fbe9e7; --high:#c4510f; --high-bg:#fdf0e6; --med:#8a6d00; --med-bg:#fbf5dc;
+  --low:#2e6b3a; --low-bg:#e8f3ea; --info:#4a5a6a; --info-bg:#eceff2;
+  --ok:#2e7d32; --part:#b07800; --no:#b3261e; --code-bg:#f1f1ee;
+  --main:#1f5fa8; --muna:#7b3fa0; --omran:#b0581b; --bar-bg:#e6e6e1;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#151515; --surface:#1e1e1d; --surface-2:#262624; --text:#ececea; --muted:#a6a6a0; --border:#363633;
+    --accent:#7fb0ea; --accent-soft:#1d2b3b;
+    --crit:#ff8a80; --crit-bg:#3a1d1b; --high:#ffab70; --high-bg:#3a2717; --med:#e8c64c; --med-bg:#352f15;
+    --low:#8fd19e; --low-bg:#1c2f21; --info:#b0bccb; --info-bg:#252b31;
+    --ok:#81c784; --part:#ffcc66; --no:#ff8a80; --code-bg:#2a2a28;
+    --main:#7fb0ea; --muna:#c79be6; --omran:#f0a36b; --bar-bg:#2e2e2b;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#151515; --surface:#1e1e1d; --surface-2:#262624; --text:#ececea; --muted:#a6a6a0; --border:#363633;
+  --accent:#7fb0ea; --accent-soft:#1d2b3b;
+  --crit:#ff8a80; --crit-bg:#3a1d1b; --high:#ffab70; --high-bg:#3a2717; --med:#e8c64c; --med-bg:#352f15;
+  --low:#8fd19e; --low-bg:#1c2f21; --info:#b0bccb; --info-bg:#252b31;
+  --ok:#81c784; --part:#ffcc66; --no:#ff8a80; --code-bg:#2a2a28;
+  --main:#7fb0ea; --muna:#c79be6; --omran:#f0a36b; --bar-bg:#2e2e2b;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Segoe UI",Tahoma,"Noto Naskh Arabic","Noto Sans Arabic",Arial,sans-serif;line-height:1.75;font-size:16px}
+a{color:var(--accent)}
+code{font-family:Consolas,"Cascadia Mono",Menlo,monospace;font-size:.86em;background:var(--code-bg);padding:.08em .35em;border-radius:4px;direction:ltr;unicode-bidi:isolate;overflow-wrap:anywhere}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;overflow-x:auto;direction:ltr;text-align:left;font-family:Consolas,"Cascadia Mono",Menlo,monospace;font-size:.84em;line-height:1.55;margin:.6em 0}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px 64px}
+header.top{background:var(--surface);border-bottom:1px solid var(--border)}
+header.top .wrap{padding-top:28px;padding-bottom:22px}
+h1{font-size:1.7rem;line-height:1.35;margin:0 0 .3em}
+h2{font-size:1.35rem;margin:2.2em 0 .6em;padding-bottom:.3em;border-bottom:2px solid var(--border);scroll-margin-top:12px}
+h3{font-size:1.1rem;margin:1.5em 0 .5em}
+p{margin:.5em 0 .9em}
+.sub{color:var(--muted);margin:0}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;color:var(--muted);font-size:.9rem;margin-top:10px}
+nav.toc{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin:22px 0}
+nav.toc ol{margin:0;padding-inline-start:1.3em;columns:2;column-gap:28px}
+nav.toc li{break-inside:avoid;margin:.12em 0}
+@media (max-width:700px){nav.toc ol{columns:1}}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:14px 0}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+.kpi .n{font-size:1.35rem;font-weight:700;direction:ltr;unicode-bidi:isolate}
+.kpi .l{font-size:.85rem;color:var(--muted)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin:14px 0}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;border-top:4px solid var(--accent)}
+.card h3{margin:.1em 0 .4em}
+.card ul{margin:.3em 0;padding-inline-start:1.2em}
+.callout{background:var(--accent-soft);border-inline-start:4px solid var(--accent);border-radius:8px;padding:12px 16px;margin:14px 0}
+.callout.warn{background:var(--high-bg);border-inline-start-color:var(--high)}
+.callout.ok{background:var(--low-bg);border-inline-start-color:var(--low)}
+.tbl{width:100%;overflow-x:auto;margin:10px 0 16px;border:1px solid var(--border);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top;text-align:start}
+th{background:var(--surface-2);font-weight:600;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+td.c,td.n{white-space:nowrap}
+td.n{direction:ltr;unicode-bidi:isolate;text-align:end;font-variant-numeric:tabular-nums}
+tr.grp td{background:var(--surface-2);font-weight:700;color:var(--muted);font-size:.86rem}
+.y{color:var(--ok);font-weight:700} .p{color:var(--part);font-weight:700} .no{color:var(--no);font-weight:700}
+.rid{font-family:Consolas,Menlo,monospace;font-weight:700;direction:ltr;unicode-bidi:isolate;white-space:nowrap}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:8px 0 14px}
+.flow .box{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-size:.88rem;overflow-wrap:anywhere;max-width:100%}
+.flow .box.k{border-color:var(--accent)}
+.flow .arr{color:var(--muted)}
+.bar{display:grid;grid-template-columns:9em 1fr 4.6em;gap:8px;align-items:center;font-size:.86rem;margin:5px 0}
+.bar .track{height:12px;background:var(--bar-bg);border-radius:999px;overflow:hidden}
+.bar .fill{display:block;height:100%;border-radius:999px;background:var(--accent)}
+.bar .v{direction:ltr;unicode-bidi:isolate;text-align:end;color:var(--muted)}
+@media (max-width:640px){.bar{grid-template-columns:7em 1fr 4em}}
+footer{color:var(--muted);font-size:.85rem;margin-top:40px;border-top:1px solid var(--border);padding-top:14px}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <h1>تنفيذ المرحلة الأولى كاملة حسب pentra.pdf واختبارها على بيانات حقيقية</h1>
+    <p class="sub">المشروع الأساسي بعد دمج muna وإضافة Syslog واستدعاءات النظام (Auditd و eBPF) ومتجهات الجلسات، مع كل التفاصيل والنتائج.</p>
+    <div class="meta">
+      <span>التاريخ: 2026-10-19</span>
+      <span>المشروع: <code>D:\pentra</code></span>
+      <span>تقارير مرافقة: <a href="PHASE_1_COMPARISON_REPORT.html">مقارنة النسخ الثلاث</a> · <a href="PENTRA_PDF_COMPARISON.html">المطابقة مع pentra.pdf قبل التنفيذ</a> · <a href="DEEP_COMPARISON_REPORT.html">نقاط الضعف الفعلية مقابل النسخة المكتملة</a> · <a href="COMPLETED_VERSION_REPORT.html">تقرير النسخة المكتملة</a></span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<nav class="toc" aria-label="المحتويات">
+  <strong>المحتويات</strong>
+  <ol>
+    <li><a href="#summary">الخلاصة</a></li>
+    <li><a href="#what">ما الذي بُني</a></li>
+    <li><a href="#compliance">المطابقة مع pentra.pdf بعد التنفيذ</a></li>
+    <li><a href="#design">قرارات التصميم</a></li>
+    <li><a href="#safety">الأمان والخصوصية</a></li>
+    <li><a href="#tests">الاختبارات والفحوص</a></li>
+    <li><a href="#lab">مختبر البيانات الحقيقية</a></li>
+    <li><a href="#results">النتائج</a></li>
+    <li><a href="#resilience">الانقطاع والتكرار</a></li>
+    <li><a href="#bugs">أخطاء كشفتها البيانات الحقيقية</a></li>
+    <li><a href="#limits">القيود وما لم يُختبر</a></li>
+    <li><a href="#files">الملفات التي تغيّرت</a></li>
+    <li><a href="#run">كيف تعيد التشغيل</a></li>
+  </ol>
+</nav>
+
+<!-- ============================================================ -->
+<h2 id="summary">1. الخلاصة</h2>
+
+<div class="callout ok">
+  <strong>النتيجة: نجح (PASS) مع قيود موثّقة.</strong> المشروع الأساسي يجمع الآن الأنواع الأربعة من البيانات التي يطلبها pentra.pdf في المرحلة الأولى، عبر وكلاء على أكثر من جهاز، إلى FastAPI ثم Kafka بالأسماء المحددة في المواصفة، ثم التوحيد والتخزين. واختُبر كل ذلك على بيانات حقيقية: 9,450 حدثًا من 8 مصادر، وانقطاع 30 ثانية للـ API بلا فقد، وإعادة إرسال بلا تخزين مكرر.
+</div>
+
+<div class="kpis">
+  <div class="kpi"><div class="n">17 / 19</div><div class="l">متطلبات pentra.pdf المحققة (كانت 12 / 19)</div></div>
+  <div class="kpi"><div class="n">4 / 4</div><div class="l">أنواع البيانات في المواصفة (كانت 0.5 / 4)</div></div>
+  <div class="kpi"><div class="n">9,450</div><div class="l">حدث حقيقي خُزّن من 8 مصادر</div></div>
+  <div class="kpi"><div class="n">0</div><div class="l">أحداث مفقودة أثناء انقطاع الـ API</div></div>
+  <div class="kpi"><div class="n">4,804 / 0</div><div class="l">اختبار: نجح / فشل</div></div>
+  <div class="kpi"><div class="n">6</div><div class="l">أخطاء كشفتها البيانات الحقيقية وأُصلحت</div></div>
+</div>
+
+<div class="bars">
+  <div class="bar"><span>قبل التنفيذ</span><span class="track"><span class="fill" style="width:63.2%;background:var(--muted)"></span></span><span class="v">12 / 19</span></div>
+  <div class="bar"><span>بعد التنفيذ</span><span class="track"><span class="fill" style="width:89.5%"></span></span><span class="v">17 / 19</span></div>
+</div>
+
+<p>المتطلبان غير المحققين: «ملايين الرسائل في الثانية» و«زمن كشف أقل من 50 ms». كلاهما رقم منقول من الأبحاث في pentra.pdf وليس قابلًا للتحقيق بمعمارية HTTP ← Kafka ← قاعدة بيانات؛ قيس هنا معدل تخزين أقصى 805 أحداث/ثانية وزمن من الاستلام حتى التخزين p50 بين 0.04 و 0.67 ثانية.</p>
+
+<!-- ============================================================ -->
+<h2 id="what">2. ما الذي بُني</h2>
+
+<p>المجمّعات الجديدة كلها داخل الـ Agent الموجود (<code>apps/agent/collectors/</code>)، فتستفيد من الـ spool المشفر، والتوكن، وإعادة المحاولة، والمخطط الموحد canonical v1.0. كل مجمّع مغلق حتى يُضبط إعداده.</p>
+
+<div class="tbl"><table>
+<thead><tr><th>الوحدة</th><th>الأسطر</th><th>المصدر</th><th>الوظيفة</th></tr></thead>
+<tbody>
+<tr><td><code>windows_events.py</code></td><td class="n">740</td><td>مأخوذ من muna</td><td>قراءة سجلات Windows (pywin32)، تحليل XML، حلقة قراءة بـ checkpoint لكل قناة، تحويل System/Application إلى <code>system.*</code></td></tr>
+<tr><td><code>windows_auth.py</code></td><td class="n">375</td><td>muna + جديد</td><td>سجل Security: 4624/4625/4634/4647/4648/4672/4740 ← أحداث مصادقة ومتجهات جلسات</td></tr>
+<tr><td><code>sessions.py</code></td><td class="n">186</td><td>جديد</td><td>متجهات الجلسات (سلوك المستخدم) المشتركة بين Windows و sshd</td></tr>
+<tr><td><code>packets.py</code></td><td class="n">330</td><td>مأخوذ من muna</td><td>قراءة رؤوس الحزم فقط بـ Scapy (IPv4/IPv6، VLAN، fragments)</td></tr>
+<tr><td><code>flows.py</code></td><td class="n">293</td><td>muna + تحسين</td><td>تدفقات <strong>ثنائية الاتجاه</strong> (bytes_sent / bytes_received) بدل الأحادية، مع الخصائص المستخرجة</td></tr>
+<tr><td><code>pcap.py</code></td><td class="n">152</td><td>مأخوذ من muna</td><td>ملفات PCAP/PCAPNG، تُقرأ مرة وتُعاد عند تغيّرها</td></tr>
+<tr><td><code>live_capture.py</code></td><td class="n">480</td><td>مأخوذ من muna</td><td>الالتقاط الحي بضماناته (Npcap على Windows، libpcap على Linux)</td></tr>
+<tr><td><code>netflow.py</code></td><td class="n">447</td><td>مأخوذ من muna</td><td>NetFlow v5/v9 و IPFIX عبر GoFlow2، مع قائمة مُصدِّرات مسموحة</td></tr>
+<tr><td><code>syslog.py</code></td><td class="n">658</td><td>جديد</td><td>مُستقبِل Syslog (RFC 3164/5424، UDP و TCP)؛ sshd و PAM ← مصادقة وجلسات</td></tr>
+<tr><td><code>syscalls.py</code></td><td class="n">443</td><td>جديد</td><td>Auditd و eBPF ← «تسلسلات استدعاء» لكل عملية + <code>process.started</code></td></tr>
+<tr><td><code>tail.py</code></td><td class="n">123</td><td>جديد</td><td>قراءة ملفات متنامية بـ checkpoint (مخرجات GoFlow2، سجل audit، مخرجات eBPF)</td></tr>
+<tr class="grp"><td>المجموع</td><td class="n">4,227</td><td colspan="2">11 وحدة جديدة</td></tr>
+</tbody></table></div>
+
+<h3>إضافات أخرى</h3>
+<div class="tbl"><table>
+<thead><tr><th>الإضافة</th><th>المكان</th></tr></thead>
+<tbody>
+<tr><td>إعادة تسمية الـ topics إلى <code>system_logs</code> و <code>auth_events</code> و <code>network_flows</code></td><td><code>packages/kafka/topics.py</code></td></tr>
+<tr><td>37 إعدادًا جديدًا للـ Agent مع فحوص الأمان</td><td><code>packages/config/sections.py</code>، <code>.env.example</code>، <code>docs/DEVELOPMENT.md</code></td></tr>
+<tr><td>برنامج eBPF (bpftrace) لاستدعاءات النظام الحساسة</td><td><code>infrastructure/ebpf/adis-syscalls.bt</code></td></tr>
+<tr><td>قواعد auditd</td><td><code>infrastructure/auditd/adis.rules</code></td></tr>
+<tr><td>ملف mapping لـ GoFlow2 (من muna)</td><td><code>infrastructure/goflow2/adis-mapping.yaml</code></td></tr>
+<tr><td>libpcap داخل صورة Docker، ومكتبتا <code>scapy</code> و <code>pywin32</code></td><td><code>infrastructure/docker/Dockerfile</code>، <code>pyproject.toml</code></td></tr>
+<tr><td>أمرا CLI: <code>run --duration</code> و <code>interfaces</code></td><td><code>apps/agent/__main__.py</code></td></tr>
+<tr><td>مختبر البيانات الحقيقية وسكربت تشغيله</td><td><code>infrastructure/lab/</code>، <code>scripts/lab_phase1.py</code></td></tr>
+</tbody></table></div>
+
+<h3>مسار البيانات الآن</h3>
+<div class="flow">
+  <span class="box">Windows Event Log · Security · Syslog · PCAP · التقاط حي · NetFlow/IPFIX · Auditd · eBPF</span><span class="arr">←</span>
+  <span class="box k">Agent (spool مشفر، توكن)</span><span class="arr">←</span>
+  <span class="box k">FastAPI <code>/api/v1/events/batch</code></span><span class="arr">←</span>
+  <span class="box k">Kafka: system_logs · auth_events · network_flows</span><span class="arr">←</span>
+  <span class="box k">Normalizer (منع التكرار)</span><span class="arr">←</span>
+  <span class="box">PostgreSQL / Supabase + <code>adis.security.events</code></span>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="compliance">3. المطابقة مع pentra.pdf بعد التنفيذ</h2>
+<p><span class="y">✔</span> محقق · <span class="p">◐</span> جزئي · <span class="no">✘</span> غير محقق. العمود «قبل» من <a href="PENTRA_PDF_COMPARISON.html">تقرير المطابقة السابق</a>.</p>
+<div class="tbl"><table>
+<thead><tr><th>المتطلب</th><th>قبل</th><th>بعد</th><th>الدليل</th></tr></thead>
+<tbody>
+<tr><td><span class="rid">R-01</span> جمع من جميع المصادر</td><td class="c"><span class="p">◐</span></td><td class="c"><span class="y">✔</span></td><td>8 مصادر حقيقية في المختبر، تغطي الأنواع الأربعة</td></tr>
+<tr><td><span class="rid">R-02</span> تنسيق موحد</td><td class="c"><span class="y">✔</span></td><td class="c"><span class="y">✔</span></td><td>كل المجمّعات تُخرج canonical v1.0؛ المخطط لم يتغير</td></tr>
+<tr><td><span class="rid">R-03</span> Kafka عمود فقري</td><td class="c"><span class="y">✔</span></td><td class="c"><span class="y">✔</span></td><td>—</td></tr>
+<tr><td><span class="rid">R-04</span> topics بالأسماء المحددة</td><td class="c"><span class="p">◐</span></td><td class="c"><span class="y">✔</span></td><td><code>system_logs</code> 5,484 · <code>network_flows</code> 3,948 · <code>auth_events</code> 18 سجلًا في التشغيل</td></tr>
+<tr><td><span class="rid">R-05</span> عدم فقدان أي حدث</td><td class="c"><span class="y">✔</span></td><td class="c"><span class="y">✔</span></td><td>1,163 حدثًا وقعت أثناء انقطاع الـ API وُصلت كلها (<a href="#resilience">القسم 9</a>)</td></tr>
+<tr><td><span class="rid">R-06</span> الترتيب وإعادة المعالجة</td><td class="c"><span class="y">✔</span></td><td class="c"><span class="y">✔</span></td><td>إعادة إرسال 3,930 حدثًا ← لا صف جديد</td></tr>
+<tr><td><span class="rid">R-07</span> ملايين الرسائل/ثانية</td><td class="c"><span class="no">✘</span></td><td class="c"><span class="no">✘</span></td><td>أقصى معدل مقاس 805 حدث/ثانية؛ broker واحد في المختبر</td></tr>
+<tr><td><span class="rid">R-08</span> وكلاء على أجهزة مختلفة</td><td class="c"><span class="y">✔</span></td><td class="c"><span class="y">✔</span></td><td>Agent على Windows + Agent في حاوية Linux، بتوكنين مختلفين</td></tr>
+<tr><td><span class="rid">R-09</span> async وآلاف الطلبات</td><td class="c"><span class="y">✔</span></td><td class="c"><span class="y">✔</span></td><td>—</td></tr>
+<tr><td><span class="rid">R-10</span> توثيق وتحقق تلقائيان</td><td class="c"><span class="y">✔</span></td><td class="c"><span class="y">✔</span></td><td>—</td></tr>
+<tr><td><span class="rid">R-11</span> Syslog + Windows Event Log</td><td class="c"><span class="p">◐</span></td><td class="c"><span class="y">✔</span></td><td>181 حدث Windows حقيقي + 76 رسالة Syslog حقيقية</td></tr>
+<tr><td><span class="rid">R-12</span> NetFlow/IPFIX + PCAP ← خصائص</td><td class="c"><span class="no">✘</span></td><td class="c"><span class="y">✔</span></td><td>109 تدفق IPFIX + 3,835 تدفق PCAP + 4 من الالتقاط الحي</td></tr>
+<tr><td><span class="rid">R-13</span> Auditd + eBPF ← تسلسلات استدعاء</td><td class="c"><span class="no">✘</span></td><td class="c"><span class="y">✔</span></td><td>2,738 تسلسلًا + 2,505 <code>process.started</code> من eBPF حقيقي؛ Auditd مختبر بصيغته الحقيقية فقط</td></tr>
+<tr><td><span class="rid">R-14</span> سجلات المصادقة والوصول ← متجهات جلسات</td><td class="c"><span class="no">✘</span></td><td class="c"><span class="y">✔</span></td><td>4 جلسات SSH حقيقية بمتجهاتها؛ سجل Security مختبر بصيغته</td></tr>
+<tr><td><span class="rid">R-15</span> رؤية 360°</td><td class="c"><span class="p">◐</span></td><td class="c"><span class="y">✔</span></td><td>تيار موحد واحد من 8 مصادر و 4 أجهزة</td></tr>
+<tr><td><span class="rid">R-16</span> حاوية لكل مكون</td><td class="c"><span class="y">✔</span></td><td class="c"><span class="y">✔</span></td><td>الـ Agent يعمل الآن في حاوية أيضًا</td></tr>
+<tr><td><span class="rid">R-17</span> مراقبة الأداء</td><td class="c"><span class="y">✔</span></td><td class="c"><span class="y">✔</span></td><td>—</td></tr>
+<tr><td><span class="rid">R-18</span> <code>docker-compose up</code></td><td class="c"><span class="y">✔</span></td><td class="c"><span class="y">✔</span></td><td>المختبر الكامل بأمر واحد</td></tr>
+<tr><td><span class="rid">R-19</span> MTTD &lt; 50 ms</td><td class="c"><span class="no">✘</span></td><td class="c"><span class="no">✘</span></td><td>الاستلام حتى التخزين وحده p50 = 0.04–0.67 ثانية</td></tr>
+</tbody></table></div>
+
+<!-- ============================================================ -->
+<h2 id="design">4. قرارات التصميم</h2>
+<div class="tbl"><table>
+<thead><tr><th>القرار</th><th>السبب</th></tr></thead>
+<tbody>
+<tr><td>إعادة تسمية الـ topics الثلاثة الخام فقط إلى أسماء المواصفة</td><td>الـ Normalizer وحده يقرأها، فالمراحل 2–7 (التي تقرأ <code>adis.security.events</code>) لا تتأثر. مسجّل كقرار OD-39.</td></tr>
+<tr><td>لا تغيير في المخطط canonical v1.0</td><td>استدعاءات النظام أحداث <code>process</code>، وسلوك المستخدم أحداث <code>authentication.session_*</code>. هكذا لا تحتاج المراحل اللاحقة لأي تعديل.</td></tr>
+<tr><td>فقط <code>authentication.login*</code> تُعدّ محاولات دخول</td><td>حتى لا تُضخّم أحداث الجلسات والخروج ميزات الدخول في Phase 2.</td></tr>
+<tr><td>تدفقات ثنائية الاتجاه</td><td>المخطط الموحد يحمل <code>bytes_sent</code> و <code>bytes_received</code>، وميزات Phase 2 تعدّ «الاتصالات»؛ تدفقا muna الأحاديان كانا سيُعدّان اتصالين.</td></tr>
+<tr><td>الـ Agent لا يحتاج صلاحيات</td><td>المشغّل يثبّت قواعد audit أو يشغّل bpftrace، والـ Agent يقرأ الملف الناتج فقط (أقل صلاحية).</td></tr>
+<tr><td>المصادر المركزية (Syslog، NetFlow) تعمل كوكيل بتوكن غير مربوط بجهاز</td><td>لأنها تكتب أحداث أجهزة أخرى (اسم المرسل أو المُصدِّر هو <code>host_id</code>).</td></tr>
+<tr><td>معرّفات أحداث حتمية</td><td>من حقائق المصدر (الحاسوب والقناة ورقم السجل، أو 5-tuple ووقت أول حزمة)، فيمنع الـ Normalizer التكرار عند إعادة القراءة.</td></tr>
+</tbody></table></div>
+
+<!-- ============================================================ -->
+<h2 id="safety">5. الأمان والخصوصية</h2>
+<div class="cards">
+  <div class="card"><h3>الجمع</h3><ul>
+    <li>كل مجمّع مغلق افتراضيًا.</li>
+    <li>الالتقاط الحي يحتاج واجهة محددة بالاسم و <code>AGENT_LIVE_CAPTURE_AUTHORIZED=true</code>؛ promiscuous مطفأ إلا مع شبكات مختبر محددة.</li>
+    <li>رؤوس الحزم فقط (snaplen 160)، ولا تُحلّل البيانات.</li>
+    <li>حركة الـ Agent نفسه إلى الـ API و Kafka مستثناة.</li>
+  </ul></div>
+  <div class="card"><h3>الاستماع</h3><ul>
+    <li>Syslog و NetFlow على عنوان واحد، loopback إلا بإذن صريح، ولا <code>0.0.0.0</code> أبدًا.</li>
+    <li>Syslog من مرسلين مسموحين فقط؛ NetFlow من مُصدِّرات مسموحة فقط.</li>
+    <li>رسائل Syslog محدودة الحجم.</li>
+  </ul></div>
+  <div class="card"><h3>الخصوصية</h3><ul>
+    <li>حقول تشبه الأسرار تُحذف والنصوص تُنقّح.</li>
+    <li>اسم الحساب غير الموجود (قد يكون كلمة مرور) يُحجب من الحدث <strong>ومن كل سطور sshd</strong>: 0 تسريب في البيانات الحقيقية.</li>
+    <li>وسائط أوامر العمليات لا تُجمع أبدًا.</li>
+    <li>SIDs الشخصية لا تُرسل.</li>
+  </ul></div>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="tests">6. الاختبارات والفحوص</h2>
+<div class="tbl"><table>
+<thead><tr><th>الفحص</th><th>النتيجة</th></tr></thead>
+<tbody>
+<tr><td>كل اختبارات الوحدات (<code>tests/unit</code>)</td><td><span class="y">4,804 نجح</span>، 2 تخطّى (صلاحيات POSIX)، 0 فشل</td></tr>
+<tr><td>اختبارات الـ Agent</td><td>226 (كانت 105): +121 حالة جديدة في 5 ملفات اختبار</td></tr>
+<tr><td>ruff + التنسيق</td><td><span class="y">نظيف</span> (699 ملفًا)</td></tr>
+<tr><td>mypy strict</td><td><span class="y">نظيف</span> (632 ملفًا)</td></tr>
+<tr><td>اختبار توثيق الإعدادات</td><td>كل الإعدادات الـ 37 موجودة في <code>.env.example</code> وجدول <code>DEVELOPMENT.md</code></td></tr>
+</tbody></table></div>
+<div class="tbl"><table>
+<thead><tr><th>ملف الاختبار</th><th>اختبارات</th><th>ما يغطيه</th></tr></thead>
+<tbody>
+<tr><td><code>test_windows_collectors.py</code></td><td class="n">25</td><td>تحليل XML، الفلترة، الخصوصية، المصادقة، متجهات الجلسات، حجب الأسماء، حلقة القراءة (checkpoint، backfill، سجل ممسوح، قناة مرفوضة)</td></tr>
+<tr><td><code>test_network_collectors.py</code></td><td class="n">23</td><td>PCAP/PCAPNG، IPv6، التدفقات الثنائية، المهلات، الجدول المحدود، ملف تالف، الالتقاط الحي، فلتر BPF، NetFlow، المُصدِّرات المرفوضة</td></tr>
+<tr><td><code>test_syslog_collector.py</code></td><td class="n">15</td><td>RFC 5424/3164، sshd/PAM، الجلسات، حجب الأسماء، المرسلون المرفوضون، استقبال UDP و TCP فعلي</td></tr>
+<tr><td><code>test_syscall_collectors.py</code></td><td class="n">11</td><td>صيغ audit (RAW و ENRICHED و hex)، eBPF، النوافذ، الـ checkpoint وإعادة البناء</td></tr>
+<tr><td><code>test_collector_settings.py</code></td><td class="n">10</td><td>فحوص الأمان في الإعدادات وبناء المجمّعات</td></tr>
+</tbody></table></div>
+
+<!-- ============================================================ -->
+<h2 id="lab">7. مختبر البيانات الحقيقية</h2>
+<p>مشروع Docker مستقل (<code>adis-lab</code>) بـ Kafka و PostgreSQL و API و Normalizer خاصين به، من صورة <code>adis-python:local</code> المبنية من هذا المستودع. <strong>لم يُستخدم ملف <code>.env</code> ولا Supabase المستضاف.</strong> الأسرار عشوائية في <code>.adis-lab/lab.env</code> (خارج git).</p>
+<div class="tbl"><table>
+<thead><tr><th>الوكيل («الجهاز»)</th><th>أين يعمل</th><th>المجمّعات</th></tr></thead>
+<tbody>
+<tr><td><code>lab-linux-collector</code></td><td>حاوية Linux في شبكة المختبر</td><td>Syslog (UDP + TCP)، NetFlow/IPFIX، PCAP، eBPF، التقاط حي لواجهته (libpcap)</td></tr>
+<tr><td><code>lab-windows-agent</code></td><td>هذا الحاسوب (Windows 11)</td><td>سجلات Windows (آخر 24 ساعة)، سجل Security، PCAP لبيانات omran</td></tr>
+</tbody></table></div>
+<div class="tbl"><table>
+<thead><tr><th>المصدر الحقيقي</th><th>ما هو</th></tr></thead>
+<tbody>
+<tr><td>web-client</td><td>حركة DNS و HTTPS و ICMP حقيقية من حاوية واحدة إلى مواقع عامة</td></tr>
+<tr><td>capture</td><td><code>tcpdump</code> في نفس فضاء الشبكة ← ملف PCAP حقيقي (29,533 حزمة)</td></tr>
+<tr><td>flow-exporter + goflow2</td><td><code>softflowd</code> يصدّر IPFIX حقيقي لنفس الحركة، و GoFlow2 v2.2.3 يفكّه</td></tr>
+<tr><td>ssh-server + ssh-client</td><td>OpenSSH مع PAM على Debian، يرسل سجلاته عبر rsyslog؛ دخول بمفتاح، ومحاولات لحساب غير موجود، ومفتاح غير معروف (بلا كلمات مرور)</td></tr>
+<tr><td>ebpf</td><td>برنامج <code>adis-syscalls.bt</code> (bpftrace 0.20.4) على نواة Docker الحقيقية لمدة 180 ثانية</td></tr>
+<tr><td>هذا الحاسوب</td><td>سجلات System و Application الحقيقية؛ سجل Security (مرفوض بلا صلاحية)</td></tr>
+<tr><td>بيانات omran</td><td>208,949 حزمة حقيقية من شبكاتك (10–12 أكتوبر)، أعيد بناؤها كـ PCAP برؤوس فقط في مجلد مؤقت خاص</td></tr>
+</tbody></table></div>
+
+<h3>الجدول الزمني للتشغيل النهائي (بالثواني)</h3>
+<div class="tbl"><table>
+<thead><tr><th>الثانية</th><th>الحدث</th></tr></thead>
+<tbody>
+<tr><td class="n">21</td><td>المختبر جاهز والمصادر الحقيقية بدأت؛ وكيل Windows بدأ</td></tr>
+<tr><td class="n">57</td><td><strong>إيقاف الـ API</strong> (انقطاع) أثناء سيناريوهات SSH</td></tr>
+<tr><td class="n">88</td><td>تشغيل الـ API من جديد</td></tr>
+<tr><td class="n">228</td><td>انتهت المصادر الحقيقية</td></tr>
+<tr><td class="n">324</td><td>انتهى وكيل Windows</td></tr>
+<tr><td class="n">355</td><td>تسجيل النتائج الأولى</td></tr>
+<tr><td class="n">356</td><td>إعادة تشغيل وكيل Linux</td></tr>
+<tr><td class="n">376–527</td><td>إعادة تشغيل وكيل Windows بمجلد بيانات فارغ (هوية جديدة)</td></tr>
+<tr><td class="n">548</td><td>النتائج النهائية؛ ثم إعادة إرسال بنفس الهوية</td></tr>
+</tbody></table></div>
+
+<!-- ============================================================ -->
+<h2 id="results">8. النتائج</h2>
+<div class="tbl"><table>
+<thead><tr><th>المصدر</th><th><code>source_type</code></th><th>أحداث مخزنة</th><th>الأنواع</th></tr></thead>
+<tbody>
+<tr><td>eBPF</td><td><code>ebpf</code></td><td class="n">5,243</td><td>2,738 <code>process.syscall_sequence</code> + 2,505 <code>process.started</code></td></tr>
+<tr><td>بيانات omran (وكيل Windows)</td><td><code>pcap</code></td><td class="n">3,751</td><td><code>network.flow</code> من 208,949 حزمة</td></tr>
+<tr><td>PCAP المختبر (وكيل Linux)</td><td><code>pcap</code></td><td class="n">84</td><td><code>network.flow</code></td></tr>
+<tr><td>سجلات Windows</td><td><code>windows_eventlog</code></td><td class="n">181</td><td>149 عام، 15 تغيير نوع تشغيل خدمة، 6 تحديثات، 4 خدمات مثبتة، أحداث تشغيل وإيقاف ووقت</td></tr>
+<tr><td>NetFlow/IPFIX</td><td><code>netflow</code></td><td class="n">109</td><td>104 TCP، 4 ICMP، 1 ICMPv6 (17.0 MB مُصدَّرة)</td></tr>
+<tr><td>Syslog</td><td><code>syslog</code></td><td class="n">76</td><td>58 <code>system.syslog</code>، 10 دخول SSH، 4 بدء جلسة، 4 نهاية جلسة</td></tr>
+<tr><td>التقاط حي</td><td><code>live_capture</code></td><td class="n">4</td><td>حركة Syslog الواصلة للوكيل (حركة الـ API و Kafka مستثناة)</td></tr>
+<tr><td>تسجيل الوكلاء</td><td><code>agent</code></td><td class="n">2</td><td><code>system.agent_registered</code></td></tr>
+<tr class="grp"><td>المجموع</td><td></td><td class="n">9,450</td><td>9,450 معرّفًا مختلفًا · 4 أجهزة · 0 dead letter</td></tr>
+</tbody></table></div>
+
+<h3>المصادقة الحقيقية (sshd عبر Syslog)</h3>
+<div class="tbl"><table>
+<thead><tr><th>الحدث</th><th>العدد</th><th>المتوقع من السيناريو</th></tr></thead>
+<tbody>
+<tr><td>دخول ناجح بمفتاح</td><td class="n">4</td><td class="y">4 ✔</td></tr>
+<tr><td>فشل: مفتاح غير معروف (<code>invalid_credentials</code>)</td><td class="n">3</td><td class="y">3 ✔ (مرة واحدة لكل محاولة)</td></tr>
+<tr><td>فشل: حساب غير موجود (<code>unknown_user</code>، الاسم محجوب)</td><td class="n">3</td><td class="y">3 ✔</td></tr>
+<tr><td>جلسات بدأت / انتهت</td><td class="n">4 / 4</td><td class="y">4 / 4 ✔</td></tr>
+<tr><td>الاسم المكتوب للحساب غير الموجود في أي حدث مخزن</td><td class="n">0</td><td class="y">0 ✔</td></tr>
+</tbody></table></div>
+
+<h3>متجهات الجلسات (من البيانات الحقيقية)</h3>
+<div class="tbl"><table>
+<thead><tr><th>الجلسة</th><th>المدة (ث)</th><th>محاولات فاشلة قبلها</th><th>مصادر الفشل</th><th>عن بعد</th><th>بصلاحيات</th></tr></thead>
+<tbody>
+<tr><td>1</td><td class="n">3.09</td><td class="n">0</td><td class="n">0</td><td class="n">1</td><td class="n">0</td></tr>
+<tr><td>2</td><td class="n">3.06</td><td class="n">1</td><td class="n">1</td><td class="n">1</td><td class="n">0</td></tr>
+<tr><td>3</td><td class="n">3.06</td><td class="n">2</td><td class="n">1</td><td class="n">1</td><td class="n">0</td></tr>
+<tr><td>4</td><td class="n">20.05</td><td class="n">3</td><td class="n">1</td><td class="n">1</td><td class="n">0</td></tr>
+</tbody></table></div>
+<p class="sub">عدد المحاولات الفاشلة يزيد مع كل محاولة مفتاح خاطئ سبقت الدخول، وهذا ما يجب أن يحدث.</p>
+
+<h3>زمن الاستلام حتى التخزين</h3>
+<div class="tbl"><table>
+<thead><tr><th>المصدر</th><th>p50 (ث)</th><th>p95 (ث)</th></tr></thead>
+<tbody>
+<tr><td>التقاط حي</td><td class="n">0.04</td><td class="n">0.09</td></tr>
+<tr><td>Syslog</td><td class="n">0.05</td><td class="n">0.98</td></tr>
+<tr><td>NetFlow</td><td class="n">0.07</td><td class="n">0.12</td></tr>
+<tr><td>eBPF</td><td class="n">0.15</td><td class="n">0.98</td></tr>
+<tr><td>سجلات Windows</td><td class="n">0.18</td><td class="n">0.19</td></tr>
+<tr><td>PCAP (دفعات كبيرة)</td><td class="n">0.67</td><td class="n">1.60</td></tr>
+</tbody></table></div>
+<p>أقصى معدل تخزين: <strong>805 حدثًا في ثانية واحدة</strong>، و 3,104 في أكثر 10 ثوانٍ ازدحامًا. معالجة PCAP: نحو 5,100 حزمة/ثانية على هذا الحاسوب.</p>
+
+<!-- ============================================================ -->
+<h2 id="resilience">9. الانقطاع والتكرار</h2>
+<div class="tbl"><table>
+<thead><tr><th>الفحص</th><th>النتيجة</th></tr></thead>
+<tbody>
+<tr><td><strong>انقطاع الـ API 30 ثانية</strong> أثناء سيناريوهات SSH</td><td><span class="y">✔ لا فقد.</span> 1,163 حدثًا وقعت أثناء الانقطاع (1,114 eBPF، 30 Syslog منها 7 أحداث مصادقة وجلسات، 1 NetFlow، 18 PCAP) بقيت في spool الوكلاء حتى 36 ثانية، ثم خُزّنت بعد العودة. أعداد SSH مطابقة تمامًا.</td></tr>
+<tr><td><strong>إعادة تشغيل وكيل Linux</strong></td><td><span class="y">✔</span> أعاد إرسال تسجيله مطابقًا، ولم يذهب أي شيء إلى dead-letter (بعد إصلاح الخطأ 5).</td></tr>
+<tr><td><strong>نفس الوكيل يعيد إرسال كل شيء</strong> (نفس الهوية، بلا checkpoints)</td><td><span class="y">✔</span> 3,751 تدفقًا و 179 حدث Windows أعيد نشرها في Kafka؛ <strong>لا صف جديد</strong> (خُزّن حدث Windows واحد جديد وقع فعلًا أثناء التشغيل).</td></tr>
+<tr><td><strong>وكيل أعيد تثبيته يقرأ التاريخ من جديد</strong> (هوية جديدة)</td><td><span class="p">◐</span> نفس 3,751 تدفقًا و 177 حدثًا وصلت بـ <code>agent_id</code> مختلف؛ الـ Normalizer رفضها كلها كتكرار متعارض (3,928 في dead-letter). <strong>لم يُخزَّن شيء مرتين</strong>، لكن dead-letter امتلأ: قرار مطلوب منك (<a href="#limits">القسم 11</a>).</td></tr>
+</tbody></table></div>
+
+<!-- ============================================================ -->
+<h2 id="bugs">10. أخطاء كشفتها البيانات الحقيقية (كلها أُصلحت ولكل منها اختبار)</h2>
+<div class="tbl"><table>
+<thead><tr><th>#</th><th>الخطأ</th><th>كيف ظهر</th><th>الإصلاح</th></tr></thead>
+<tbody>
+<tr><td class="n">1</td><td>فلتر Scapy عام للعملية كلها؛ الالتقاط الحي يمسكه، فقراءة PCAP معه فشلت بـ «Already filtered»</td><td>مجمّع PCAP يتعطل ويُعاد تشغيله كل 5 ثوانٍ</td><td>فلتر مشترك بعدّاد استخدام (<code>LAYER_FILTER</code>)</td></tr>
+<tr><td class="n">2</td><td>rsyslog يضع مسافة قبل نص رسالة RFC 5424، فلم تُعرف أي رسالة sshd</td><td>0 أحداث مصادقة رغم وصول الرسائل</td><td>إزالة المسافات قبل المطابقة والتخزين</td></tr>
+<tr><td class="n">3</td><td>اسم الحساب غير الموجود كان يُحجب من الحدث، لكنه يبقى في سطور sshd اللاحقة («Connection closed by invalid user X»)</td><td>الاسم موجود في 9 أحداث مخزنة</td><td>حجب الاسم بعد «invalid user» في كل سطور sshd</td></tr>
+<tr><td class="n">4</td><td>مع <code>LogLevel VERBOSE</code> يُحسب المفتاح المرفوض فشلين</td><td>سطرا «Failed publickey» و «Connection closed by authenticating user»</td><td>ربط السطرين برقم عملية الاتصال وعدّ فشل واحد</td></tr>
+<tr><td class="n">5</td><td><strong>موجود مسبقًا في المشروع:</strong> كل إعادة تشغيل للـ Agent تُرسل تسجيله بنفس المعرّف ووقت جديد، فيذهب إلى dead-letter</td><td>سجل dead-letter عند كل إعادة تشغيل</td><td>حفظ وقت التسجيل الأول مع الـ checkpoint وإعادة استخدامه</td></tr>
+<tr><td class="n">6</td><td>Scapy على Linux يستخدم مقابسه الخاصة افتراضيًا، فالالتقاط الحي «غير متاح» رغم وجود libpcap</td><td>الالتقاط الحي لم يبدأ في الحاوية</td><td>تفعيل libpcap في Scapy عند وجود المكتبة</td></tr>
+</tbody></table></div>
+
+<!-- ============================================================ -->
+<h2 id="limits">11. القيود وما لم يُختبر</h2>
+<div class="tbl"><table>
+<thead><tr><th>البند</th><th>التفصيل</th><th>ما يلزم</th></tr></thead>
+<tbody>
+<tr><td>Audit في النواة</td><td>النواة تقبل طلبات audit فقط من فضاء العمليات الأولي، وحاويات Docker Desktop ليست فيه. المجمّع مختبر بسجلات بصيغة auditd الحقيقية (RAW و ENRICHED)، و eBPF يغطي استدعاءات النظام على بيانات حقيقية.</td><td>خادم Linux حقيقي مع <code>infrastructure/auditd/adis.rules</code></td></tr>
+<tr><td>سجل Security الحقيقي</td><td>مرفوض بلا صلاحية؛ المجمّع يبلّغ «access denied» ويعيد المحاولة كل 60 ثانية والقنوات الأخرى تعمل</td><td>تشغيل الوكيل كعضو في «Event Log Readers» أو كمسؤول</td></tr>
+<tr><td>الالتقاط الحي على Windows</td><td>يحتاج Npcap (غير مثبت؛ الوكيل لا يثبّت تعريفات). اختُبر على Linux بـ libpcap</td><td>تثبيت Npcap من npcap.com</td></tr>
+<tr><td>«ملايين الرسائل/ثانية» و MTTD &lt; 50 ms</td><td>غير مثبتين (رقمان من الأبحاث)</td><td>تعديل الأهداف في المواصفة إلى أرقام مقاسة</td></tr>
+<tr><td>وكيل بهوية جديدة يعيد قراءة التاريخ</td><td>تكرارات متعارضة إلى dead-letter (لا تخزين مكرر)</td><td>قرارك: هل يتجاهل الـ Normalizer <code>agent_id</code> عند المقارنة؟</td></tr>
+<tr><td>لم يُنقل من muna</td><td>تقدير فجوات تسلسل NetFlow، وملخصات التدفقات، وقاعدة بيانات muna المنفصلة</td><td>—</td></tr>
+<tr><td>Syslog</td><td>بلا معرّف رسالة، فإعادة توصيل Syslog لا يمكن منع تكرارها</td><td>—</td></tr>
+<tr><td>بيانات omran</td><td>بلا TCP flags وبلا منطقة زمنية؛ اعتُبرت أوقاتها UTC</td><td>—</td></tr>
+<tr><td>مجلد <code>phase 1/main</code></td><td>نسخة من Phase 1 <strong>قبل</strong> هذا التنفيذ (كما طلبت سابقًا)؛ النسخة المحدّثة هي المشروع نفسه في <code>D:\pentra</code></td><td>—</td></tr>
+</tbody></table></div>
+
+<!-- ============================================================ -->
+<h2 id="files">12. الملفات التي تغيّرت</h2>
+<div class="tbl"><table>
+<thead><tr><th>النوع</th><th>الملفات</th></tr></thead>
+<tbody>
+<tr><td>جديد: كود</td><td><code>apps/agent/collectors/</code>: windows_events، windows_auth، sessions، packets، flows، pcap، live_capture، netflow، syslog، syscalls، tail</td></tr>
+<tr><td>معدّل: كود</td><td><code>apps/agent/agent.py</code>، <code>__main__.py</code>، <code>registration.py</code>، <code>collectors/__init__.py</code>؛ <code>packages/config/sections.py</code> و <code>__init__.py</code>؛ <code>packages/kafka/topics.py</code>؛ <code>apps/normalizer/__init__.py</code></td></tr>
+<tr><td>جديد: اختبارات</td><td><code>tests/unit/agent/</code>: test_windows_collectors، test_network_collectors، test_syslog_collector، test_syscall_collectors، test_collector_settings، و <code>fixtures/</code> (من muna)</td></tr>
+<tr><td>معدّل: اختبارات</td><td>test_agent (التسجيل)، واختبارات Kafka و API و Normalizer للأسماء الجديدة</td></tr>
+<tr><td>بنية تحتية</td><td><code>infrastructure/ebpf/</code>، <code>auditd/</code>، <code>goflow2/</code>، <code>lab/</code>؛ <code>infrastructure/docker/Dockerfile</code>؛ <code>scripts/lab_phase1.py</code></td></tr>
+<tr><td>إعداد</td><td><code>pyproject.toml</code>، <code>.env.example</code>، <code>.gitignore</code>، <code>.dockerignore</code></td></tr>
+<tr><td>توثيق</td><td>جديد: <code>docs/PHASE1_REAL_DATA_VERIFICATION.md</code>. معدّل: AGENT، EVENT_SCHEMA، ARCHITECTURE (OD-39)، DEVELOPMENT، API، NORMALIZER، IMPLEMENTATION_STATUS</td></tr>
+</tbody></table></div>
+<p class="sub">لم يُعمل أي commit. التغييرات الأخرى غير المحفوظة في المستودع (عمل Phase 6 و 7) كانت موجودة قبل هذا العمل ولم تُلمس.</p>
+
+<!-- ============================================================ -->
+<h2 id="run">13. كيف تعيد التشغيل</h2>
+<pre>
+# التشغيل الكامل للتحقق (نحو 9 دقائق): مختبر جديد، الوكيلان، الانقطاع، إعادة التشغيل، إعادة الإرسال
+.venv\Scripts\python.exe scripts\lab_phase1.py scenario --pcap &lt;ملف PCAP اختياري&gt;
+
+# تقرير النتائج من PostgreSQL و Kafka
+.venv\Scripts\python.exe scripts\lab_phase1.py report --out .adis-lab\results.json
+
+# إزالة المختبر وبياناته
+.venv\Scripts\python.exe scripts\lab_phase1.py down
+
+# الواجهات المتاحة للالتقاط الحي
+.venv\Scripts\python.exe -m apps.agent interfaces
+</pre>
+<p>نتائج هذا التشغيل وسجلات الحاويات: <code>.adis-lab\final\</code> (خارج git). كل الإعدادات الجديدة موثقة في <code>docs/DEVELOPMENT.md</code> وشرح المجمّعات في <code>docs/AGENT.md</code>.</p>
+
+<footer>
+  أُعد في 2026-10-19 من الكود والاختبارات وتشغيل المختبر النهائي (2026-10-19 من 20:03 إلى 20:15 UTC). الأرقام منقولة من <code>.adis-lab\final\results*.json</code> واستعلامات PostgreSQL، وليست تقديرات.
+</footer>
+</main>
+</body>
+</html>

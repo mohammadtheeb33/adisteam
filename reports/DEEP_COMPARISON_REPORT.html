@@ -1,0 +1,803 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>نقاط الضعف الفعلية</title>
+<meta name="description" content="مقارنة عميقة لنسخ omran وmuna والنسخة الأساسية قبل التعديل مع النسخة المكتملة (17/19): نقاط الضعف الفعلية في كل ملف، بآليتها وأثرها ودليلها، وما بقي منها في النسخة المكتملة.">
+<style>
+:root{
+  --bg:#f7f7f5; --surface:#ffffff; --surface-2:#f0f0ec; --text:#1d1d1b; --muted:#5f5f5a; --border:#deded8;
+  --accent:#1f5fa8; --accent-soft:#e3edf8;
+  --crit:#b3261e; --crit-bg:#fbe9e7; --high:#c4510f; --high-bg:#fdf0e6; --med:#8a6d00; --med-bg:#fbf5dc;
+  --low:#2e6b3a; --low-bg:#e8f3ea; --info:#4a5a6a; --info-bg:#eceff2;
+  --ok:#2e7d32; --part:#b07800; --no:#b3261e; --code-bg:#f1f1ee;
+  --main:#1f5fa8; --muna:#7b3fa0; --omran:#b0581b; --done:#2e7d32; --bar-bg:#e6e6e1;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#151515; --surface:#1e1e1d; --surface-2:#262624; --text:#ececea; --muted:#a6a6a0; --border:#363633;
+    --accent:#7fb0ea; --accent-soft:#1d2b3b;
+    --crit:#ff8a80; --crit-bg:#3a1d1b; --high:#ffab70; --high-bg:#3a2717; --med:#e8c64c; --med-bg:#352f15;
+    --low:#8fd19e; --low-bg:#1c2f21; --info:#b0bccb; --info-bg:#252b31;
+    --ok:#81c784; --part:#ffcc66; --no:#ff8a80; --code-bg:#2a2a28;
+    --main:#7fb0ea; --muna:#c79be6; --omran:#f0a36b; --done:#81c784; --bar-bg:#2e2e2b;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#151515; --surface:#1e1e1d; --surface-2:#262624; --text:#ececea; --muted:#a6a6a0; --border:#363633;
+  --accent:#7fb0ea; --accent-soft:#1d2b3b;
+  --crit:#ff8a80; --crit-bg:#3a1d1b; --high:#ffab70; --high-bg:#3a2717; --med:#e8c64c; --med-bg:#352f15;
+  --low:#8fd19e; --low-bg:#1c2f21; --info:#b0bccb; --info-bg:#252b31;
+  --ok:#81c784; --part:#ffcc66; --no:#ff8a80; --code-bg:#2a2a28;
+  --main:#7fb0ea; --muna:#c79be6; --omran:#f0a36b; --done:#81c784; --bar-bg:#2e2e2b;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Segoe UI",Tahoma,"Noto Naskh Arabic","Noto Sans Arabic",Arial,sans-serif;line-height:1.75;font-size:16px}
+a{color:var(--accent)}
+code{font-family:Consolas,"Cascadia Mono",Menlo,monospace;font-size:.86em;background:var(--code-bg);padding:.08em .35em;border-radius:4px;direction:ltr;unicode-bidi:isolate;overflow-wrap:anywhere}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px;overflow-x:auto;direction:ltr;text-align:left;font-family:Consolas,"Cascadia Mono",Menlo,monospace;font-size:.82em;line-height:1.55;margin:.5em 0}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px 64px}
+header.top{background:var(--surface);border-bottom:1px solid var(--border)}
+header.top .wrap{padding-top:28px;padding-bottom:22px}
+h1{font-size:1.7rem;line-height:1.35;margin:0 0 .3em}
+h2{font-size:1.35rem;margin:2.2em 0 .6em;padding-bottom:.3em;border-bottom:2px solid var(--border);scroll-margin-top:12px}
+h3{font-size:1.08rem;margin:1.6em 0 .5em;scroll-margin-top:12px}
+h3 .path{font-weight:400;color:var(--muted);font-size:.9em}
+p{margin:.5em 0 .9em}
+.sub{color:var(--muted);margin:0}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;color:var(--muted);font-size:.9rem;margin-top:10px}
+nav.toc{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin:22px 0}
+nav.toc ol{margin:0;padding-inline-start:1.3em;columns:2;column-gap:28px}
+nav.toc li{break-inside:avoid;margin:.12em 0}
+@media (max-width:700px){nav.toc ol{columns:1}}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:14px 0}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 12px;border-top:4px solid var(--accent)}
+.kpi.omran{border-top-color:var(--omran)} .kpi.muna{border-top-color:var(--muna)} .kpi.main{border-top-color:var(--main)} .kpi.done{border-top-color:var(--done)}
+.kpi .n{font-size:1.35rem;font-weight:700;direction:ltr;unicode-bidi:isolate}
+.kpi .l{font-size:.86rem;color:var(--muted)}
+.callout{background:var(--accent-soft);border-inline-start:4px solid var(--accent);border-radius:8px;padding:12px 16px;margin:14px 0}
+.callout.warn{background:var(--high-bg);border-inline-start-color:var(--high)}
+.callout.ok{background:var(--low-bg);border-inline-start-color:var(--low)}
+.tbl{width:100%;overflow-x:auto;margin:10px 0 16px;border:1px solid var(--border);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top;text-align:start}
+th{background:var(--surface-2);font-weight:600}
+tr:last-child td{border-bottom:none}
+td.n{direction:ltr;unicode-bidi:isolate;text-align:end;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.matrix{min-width:860px}
+table.matrix td:first-child{font-weight:600;white-space:nowrap}
+.mk{font-weight:700}
+.mk.bad{color:var(--no)} .mk.mid{color:var(--part)} .mk.good{color:var(--ok)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin:10px 0;font-size:.88rem;align-items:center}
+.badge{display:inline-block;font-size:.76rem;font-weight:700;border-radius:999px;padding:.08em .65em;white-space:nowrap;border:1px solid transparent;line-height:1.6}
+.sev.crit{color:var(--crit);background:var(--crit-bg);border-color:var(--crit)}
+.sev.high{color:var(--high);background:var(--high-bg);border-color:var(--high)}
+.sev.med{color:var(--med);background:var(--med-bg);border-color:var(--med)}
+.sev.low{color:var(--low);background:var(--low-bg);border-color:var(--low)}
+.ev{color:var(--info);background:var(--info-bg);border-color:var(--border);font-weight:600}
+.ev.run,.ev.data,.ev.lab{color:var(--accent);background:var(--accent-soft);border-color:var(--accent)}
+.st.fixed{color:var(--ok);background:var(--low-bg);border-color:var(--ok)}
+.st.part{color:var(--part);background:var(--med-bg);border-color:var(--part)}
+.st.open{color:var(--no);background:var(--crit-bg);border-color:var(--no)}
+.f{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin:12px 0;border-inline-start:4px solid var(--border)}
+.f.crit{border-inline-start-color:var(--crit)} .f.high{border-inline-start-color:var(--high)} .f.med{border-inline-start-color:var(--med)} .f.low{border-inline-start-color:var(--low)}
+.f .hd{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin-bottom:4px}
+.f .id{font-family:Consolas,Menlo,monospace;font-weight:700;direction:ltr;unicode-bidi:isolate}
+.f .t{font-weight:700;flex:1 1 280px}
+.f .loc{font-size:.86rem;color:var(--muted);margin:2px 0 6px}
+.f dl{display:grid;grid-template-columns:7.2em 1fr;gap:4px 12px;margin:6px 0 0}
+.f dt{font-weight:700;color:var(--muted);font-size:.9rem}
+.f dd{margin:0}
+@media (max-width:560px){.f dl{grid-template-columns:1fr}.f dt{margin-top:6px}}
+.who{display:inline-block;width:.75em;height:.75em;border-radius:50%;vertical-align:middle;margin-inline-end:.35em}
+.who.omran{background:var(--omran)} .who.muna{background:var(--muna)} .who.main{background:var(--main)} .who.done{background:var(--done)}
+.bar{display:grid;grid-template-columns:10em 1fr 4.4em;gap:8px;align-items:center;font-size:.86rem;margin:5px 0}
+.bar .track{height:12px;background:var(--bar-bg);border-radius:999px;overflow:hidden}
+.bar .fill{display:block;height:100%;border-radius:999px;background:var(--accent)}
+.bar .v{direction:ltr;unicode-bidi:isolate;text-align:end;color:var(--muted)}
+@media (max-width:640px){.bar{grid-template-columns:7.5em 1fr 4em}}
+ol.prio li{margin:.35em 0}
+footer{color:var(--muted);font-size:.85rem;margin-top:40px;border-top:1px solid var(--border);padding-top:14px}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <h1>نقاط الضعف الفعلية في كل ملف: omran وmuna والنسخة الأساسية القديمة مقابل النسخة المكتملة (17/19)</h1>
+    <p class="sub">لكل ضعف: مكانه في الكود، كيف يحدث، ماذا يسبب فعليًا، ما الدليل عليه، وهل حلّته النسخة المكتملة أم ما زال فيها.</p>
+    <div class="meta">
+      <span>التاريخ: 2026-10-19</span>
+      <span>المشروع: <code>D:\pentra</code></span>
+      <span>تقارير مرافقة: <a href="PHASE_1_COMPARISON_REPORT.html">مقارنة النسخ الثلاث</a> · <a href="PENTRA_PDF_COMPARISON.html">المطابقة مع pentra.pdf</a> · <a href="PHASE_1_IMPLEMENTATION_REPORT.html">تقرير التنفيذ والمختبر</a> · <a href="COMPLETED_VERSION_REPORT.html">تقرير النسخة المكتملة</a></span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<nav class="toc" aria-label="المحتويات">
+  <strong>المحتويات</strong>
+  <ol>
+    <li><a href="#summary">الخلاصة</a></li>
+    <li><a href="#method">المنهج وما استُبعد</a></li>
+    <li><a href="#matrix">المقارنة على عشرة محاور</a></li>
+    <li><a href="#omran">omran: نقاط الضعف ملفًا ملفًا</a></li>
+    <li><a href="#muna">muna: نقاط الضعف ملفًا ملفًا</a></li>
+    <li><a href="#main">النسخة الأساسية قبل التعديل</a></li>
+    <li><a href="#done">ما بقي ضعيفًا في النسخة المكتملة</a></li>
+    <li><a href="#better">أين تتفوق muna على النسخة المكتملة</a></li>
+    <li><a href="#prio">ترتيب الإصلاح المقترح</a></li>
+    <li><a href="#evidence">كيف أُثبتت الأدلة</a></li>
+  </ol>
+</nav>
+
+<section id="summary">
+<h2>1. الخلاصة</h2>
+<div class="kpis">
+  <div class="kpi omran"><div class="n">18</div><div class="l">ضعفًا في omran (حلّت النسخة المكتملة 16 كليًا و2 جزئيًا)</div></div>
+  <div class="kpi muna"><div class="n">18</div><div class="l">ضعفًا في muna (حُلّ 10، وجزئيًا 6، وبقي 2)</div></div>
+  <div class="kpi main"><div class="n">9</div><div class="l">ضعفًا في النسخة الأساسية القديمة (حُلّ 2، وجزئيًا 1، وبقي 6)</div></div>
+  <div class="kpi done"><div class="n">16</div><div class="l">ضعفًا ما زال في النسخة المكتملة، 4 منها أُثبتت بتشغيل كودها</div></div>
+  <div class="kpi"><div class="n">5</div><div class="l">تحققات جديدة شُغّلت لهذا التقرير على الكود الحقيقي أو على البيانات</div></div>
+</div>
+<p><strong>omran</strong> نموذج أولي لا يصلح أساسًا للنظام. الخلل ليس في الأسلوب بل في البنية: كل حزمة تُكتب في ملف ثم تُرسل بطلب HTTP متزامن داخل خيط الالتقاط نفسه. لذلك سرعة النظام هي سرعة رحلة HTTP واحدة لا سرعة الشبكة. هذا ظاهر في بياناته: أعلى معدل في أي ثانية 153 حزمة، و0.03% فقط من الفواصل بين الحزم أقل من 1 ms، وكل الأوقات محلية بلا منطقة زمنية. وخادمه يرد «تم الاستلام» حتى عندما يرفض Kafka الرسالة.</p>
+<p><strong>muna</strong> مكتوبة بعناية ومن الجامعات الأقرب للواقع، لكن فيها ثلاث ثغرات بنيوية:</p>
+<ul>
+  <li>البوابة تكتب بلا مصادقة، وتثق بمعرّف الحدث الذي يرسله العميل، ثم تُسقط بصمت أي حدث لاحق يحمل المعرّف نفسه.</li>
+  <li>لا مخزن محليًا، فانقطاع الخادم يعتمد على بقاء الأحداث في سجل Windows، والالتقاط الحي يتوقف كليًا بعد دقيقتين من الانقطاع.</li>
+  <li>التدفقات أحادية الاتجاه، فكل اتصال يُعدّ مرتين.</li>
+</ul>
+<p><strong>النسخة الأساسية القديمة</strong> كانت أقوى بنيةً (مخزن مشفّر، ونقطة استئناف في المعاملة نفسها، ومصادقة)، لكنها بلا أي حساس حقيقي للشبكة أو المصادقة أو العمليات. كل ما كانت ستتعلمه نماذج الكشف كان بيانات محاكاة كتب أنماطها الفريق نفسه.</p>
+<div class="callout warn"><strong>النسخة المكتملة ليست خالية من الضعف.</strong> شغّلت الكود الحقيقي فأثبت أربعة أخطاء ما زالت فيها:
+<ul>
+  <li>حدث واحد كبير يُبقي حجم الدفعة 1 إلى الأبد: 1,011 طلبًا لـ 1,011 حدثًا.</li>
+  <li>تدوير الملف يُضيّع الأسطر الأخيرة، ويشمل ذلك ملفات auditd وeBPF.</li>
+  <li>مسار تنفيذ فيه علامة <code>"</code> يُسقط حدث التنفيذ من eBPF، وهذا طريق للتهرب من الرصد.</li>
+  <li>فشل الدخول وقفل الحساب ومسح السجل تُصنّف كلها «info».</li>
+</ul>
+وبالقراءة: قائمة Syslog المؤقتة بلا حد عندما يمتلئ المخزن، ويمكن لأي عملية أن تختفي من eBPF بتسمية نفسها <code>bpftrace</code>. التفاصيل في <a href="#done">القسم 7</a>.</div>
+</section>
+
+<section id="method">
+<h2>2. المنهج وما استُبعد</h2>
+<p>قرأت الملفات سطرًا سطرًا. عرض التقرير ضعفًا فقط إذا كان له أثر فعلي يمكن وصفه: فقد بيانات، أو بيانات خاطئة، أو ثغرة أمنية، أو تهرب من الرصد، أو انهيار، أو أداء يمنع الاستخدام، أو تحقق ناقص. <strong>استُبعد</strong>: اختلاف الأسماء، وترتيب المجلدات، وأسلوب الكتابة، وغياب التعليقات، وأي فرق لا يغيّر سلوك النظام.</p>
+<div class="legend">
+  <span>الخطورة:</span>
+  <span class="badge sev crit">حرج</span><span class="badge sev high">عالٍ</span><span class="badge sev med">متوسط</span><span class="badge sev low">منخفض</span>
+</div>
+<div class="legend">
+  <span>الدليل:</span>
+  <span class="badge ev run">مُثبت بالتشغيل</span><span class="badge ev data">مُثبت بالبيانات</span><span class="badge ev lab">مُثبت في المختبر</span><span class="badge ev">من قراءة الكود</span><span class="badge ev">من وثائق المشروع</span>
+</div>
+<div class="legend">
+  <span>في النسخة المكتملة:</span>
+  <span class="badge st fixed">حُلّت</span><span class="badge st part">جزئيًا</span><span class="badge st open">باقية</span>
+</div>
+<p>أرقام الأسطر تشير إلى: <code>omran/</code> لنسخة omran، و<code>muna/ADIS-main/src/adis/</code> لنسخة muna، و<code>phase 1/main/</code> للنسخة الأساسية قبل التعديل، و<code>D:\pentra</code> للنسخة المكتملة.</p>
+</section>
+
+<section id="matrix">
+<h2>3. المقارنة على عشرة محاور</h2>
+<p><span class="mk good">●</span> جيد، <span class="mk mid">●</span> ناقص، <span class="mk bad">●</span> ضعف فعلي.</p>
+<div class="tbl">
+<table class="matrix">
+<thead><tr><th>المحور</th><th><span class="who omran"></span>omran</th><th><span class="who muna"></span>muna</th><th><span class="who main"></span>الأساسية القديمة</th><th><span class="who done"></span>المكتملة 17/19</th></tr></thead>
+<tbody>
+<tr><td>تحمّل انقطاع الخادم</td>
+<td><span class="mk bad">●</span> يُطبع الخطأ والحزمة تضيع</td>
+<td><span class="mk bad">●</span> الجامع يتوقف ويعتمد على بقاء سجل Windows، والالتقاط الحي يتوقف بعد 120 ث</td>
+<td><span class="mk good">●</span> مخزن محلي مشفّر</td>
+<td><span class="mk good">●</span> مخزن مشفّر: انقطاع 30 ث بلا فقد (1,163 حدثًا)</td></tr>
+<tr><td>النجاة من انهيار العملية</td>
+<td><span class="mk bad">●</span> لا حالة إلا CSV</td>
+<td><span class="mk mid">●</span> نقطة استئناف خارج المعاملة وبلا fsync، والطوابير في الذاكرة</td>
+<td><span class="mk good">●</span> نقطة الاستئناف مع الأحداث في معاملة واحدة</td>
+<td><span class="mk mid">●</span> كذلك، لكن تدوير الملفات يُضيّع أسطرًا (C-2)</td></tr>
+<tr><td>وقت الحدث</td>
+<td><span class="mk bad">●</span> وقت المعالجة المحلي بلا منطقة زمنية</td>
+<td><span class="mk good">●</span> وقت المصدر</td>
+<td><span class="mk bad">●</span> وقت القراءة في جامع السجلات</td>
+<td><span class="mk mid">●</span> وقت المصدر في الجامعات الجديدة، ووقت القراءة في logfile وRFC 3164</td></tr>
+<tr><td>المصادقة وربط الهوية</td>
+<td><span class="mk bad">●</span> لا شيء</td>
+<td><span class="mk bad">●</span> لا مصادقة على الكتابة</td>
+<td><span class="mk good">●</span> رموز لكل عميل</td>
+<td><span class="mk good">●</span> رموز، وربط بالوكيل والمضيف، وحد للمعدل</td></tr>
+<tr><td>التكرار والتعارض</td>
+<td><span class="mk bad">●</span> لا معرّف للحدث أصلًا</td>
+<td><span class="mk bad">●</span> الأول يفوز بصمت، ولو اختلف المحتوى</td>
+<td><span class="mk mid">●</span> كشف التعارض، لكن التسجيل نفسه يتعارض</td>
+<td><span class="mk mid">●</span> كشف التعارض، لكن هوية وكيل جديدة تُغرق قائمة الرسائل المرفوضة</td></tr>
+<tr><td>التدفقات</td>
+<td><span class="mk bad">●</span> حدث لكل حزمة</td>
+<td><span class="mk mid">●</span> أحادية الاتجاه: كل اتصال يُعدّ مرتين</td>
+<td><span class="mk bad">●</span> محاكاة فقط</td>
+<td><span class="mk good">●</span> ثنائية الاتجاه</td></tr>
+<tr><td>مصادر حقيقية</td>
+<td><span class="mk mid">●</span> حزم IPv4 فقط</td>
+<td><span class="mk mid">●</span> Windows وPCAP والالتقاط الحي وNetFlow (بعضها لم يُجرَّب على بيانات حقيقية)</td>
+<td><span class="mk bad">●</span> ملفات سجلات ومحاكاة</td>
+<td><span class="mk good">●</span> 10 جامعات حقيقية، جُرّب معظمها على حركة حقيقية</td></tr>
+<tr><td>الإنتاجية</td>
+<td><span class="mk bad">●</span> ≤ 153 حزمة/ث (مقاسة)</td>
+<td><span class="mk bad">●</span> طلب HTTP متزامن لكل حدث</td>
+<td><span class="mk bad">●</span> 0.16 حدث/ث أمام Supabase المستضاف</td>
+<td><span class="mk mid">●</span> ذروة 805 حدث/ث محليًا، تنهار إلى طلب لكل حدث بعد خطأ 413</td></tr>
+<tr><td>التهرب من الرصد</td>
+<td><span class="mk bad">●</span> IPv6 غير مرئي</td>
+<td><span class="mk bad">●</span> إسقاط البوابة دقيقتين يوقف الالتقاط</td>
+<td>—</td>
+<td><span class="mk bad">●</span> eBPF: علامة <code>"</code> في المسار، أو تسمية العملية bpftrace</td></tr>
+<tr><td>الخصوصية</td>
+<td><span class="mk bad">●</span> CSV خام بعناوين حقيقية</td>
+<td><span class="mk good">●</span> حجب الاسم المجهول وHMAC اختياري</td>
+<td><span class="mk good">●</span> تنقية الأسرار من السطور</td>
+<td><span class="mk good">●</span> حجب الاسم ومنع تسربه من sshd (بلا HMAC)</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section id="omran">
+<h2>4. omran: نقاط الضعف ملفًا ملفًا</h2>
+
+<h3>4.1 <code>network_capture.py</code> <span class="path">(76 سطرًا: الالتقاط والإرسال)</span></h3>
+
+<div class="f crit"><div class="hd"><span class="id">O-1</span><span class="badge sev crit">حرج</span><span class="badge ev data">مُثبت بالبيانات</span><span class="badge st fixed">حُلّت</span><span class="t">الالتقاط والكتابة والإرسال في خيط واحد وبشكل متزامن، فالنظام لا يرى إلا ما تسمح به سرعة HTTP</span></div>
+<div class="loc"><code>network_capture.py:12-70</code>، <code>:76</code>، <code>api_server.py:33</code></div>
+<dl>
+<dt>الآلية</dt><dd><code>sniff(prn=process_packet)</code> يستدعي الدالة داخل خيط الالتقاط. لكل حزمة تحدث هذه الخطوات بالترتيب قبل أخذ الحزمة التالية:
+<ol>
+  <li>فتح CSV وقراءة حجمه والكتابة فيه وإغلاقه (32-46).</li>
+  <li>الطباعة (48).</li>
+  <li><code>requests.post</code> باتصال TCP جديد لكل حزمة لأنه لا يستخدم Session، ومهلته ثانيتان (60-66).</li>
+  <li>الخادم بدوره ينفّذ <code>producer.flush()</code> لكل طلب.</li>
+</ol>
+أثناء ذلك تتراكم الحزم في ذاكرة النواة، وعندما تمتلئ تُسقط دون أي عدّاد.</dd>
+<dt>الأثر</dt><dd>أي دفعة حركة (تنزيل ملف، أو فحص منافذ، وهو ما يجب كشفه) تضيع بصمت. وعندما يتوقف الخادم تكلّف كل حزمة ثانيتين، فيكاد الالتقاط يتوقف.</dd>
+<dt>الدليل</dt><dd>من <code>network_data.csv</code> نفسه (208,949 حزمة): أعلى عدد في أي ثانية <strong>153</strong>، والمتوسط 31/ث. الوسيط بين حزمتين متتاليتين <strong>10.1 ms</strong>، و<strong>69</strong> فاصلًا فقط من 208,942 أقل من 1 ms (0.03%). في حركة TCP حقيقية نسبة كبيرة من الحزم تأتي متلاصقة بأقل من ملّي ثانية، فما سُجّل هنا هو سرعة الخط البرمجي لا الشبكة.</dd>
+<dt>المكتملة</dt><dd>الالتقاط في خيط مستقل بطابور محدود تُعدّ إسقاطاته (<code>apps/agent/collectors/live_capture.py:209,256</code>). تُقرأ الرؤوس فقط وتُجمّع في تدفقات، وتذهب إلى مخزن مشفّر، ويتولى مُرسِل منفصل الدفعات. في المختبر خُزّن 9,450 حدثًا بذروة 805 حدث/ث.</dd>
+</dl></div>
+
+<div class="f high"><div class="hd"><span class="id">O-2</span><span class="badge sev high">عالٍ</span><span class="badge ev data">مُثبت بالبيانات</span><span class="badge st fixed">حُلّت</span><span class="t">الوقت المسجّل هو وقت المعالجة المحلي بلا منطقة زمنية، لا وقت الالتقاط</span></div>
+<div class="loc"><code>network_capture.py:20</code>: <code>datetime.now().isoformat()</code></div>
+<dl>
+<dt>الآلية</dt><dd>لا يستخدم <code>packet.time</code>. وبسبب O-1 يتأخر وقت المعالجة عن وقت الالتقاط بقدر طول الطابور، والقيمة بلا إزاحة عن UTC.</dd>
+<dt>الأثر</dt><dd>كل ميزة زمنية (الفاصل بين الحزم، والمعدل، والانفجارات) تقيس الخط البرمجي لا الشبكة. والترتيب ينكسر عند تعديل الساعة، ولا يمكن دمج البيانات بشكل صحيح مع مصادر في مناطق زمنية أخرى.</dd>
+<dt>الدليل</dt><dd>لا يحمل أيٌّ من الأوقات الـ 208,949 منطقة زمنية. والوقت يرجع إلى الوراء في <strong>6</strong> مواضع، أكبرها <strong>14.0 ثانية</strong>.</dd>
+<dt>المكتملة</dt><dd>الوقت من رأس سجل libpcap بتوقيت UTC، والحدث يحمل <code>timestamp</code> (وقت الحدث) و<code>received_at</code> منفصلين.</dd>
+</dl></div>
+
+<div class="f med"><div class="hd"><span class="id">O-3</span><span class="badge sev med">متوسط</span><span class="badge ev data">مُثبت بالبيانات</span><span class="badge st part">جزئيًا</span><span class="t">«حجم الحزمة» ليس حجمها على السلك</span></div>
+<div class="loc"><code>network_capture.py:19</code>: <code>len(packet)</code></div>
+<dl>
+<dt>الآلية</dt><dd>عند تفعيل تجزئة البطاقة (TSO/GSO/GRO) يلتقط الجهاز بياناته الصادرة قبل أن تقسمها البطاقة، فتظهر «حزمة» واحدة بعشرات الكيلوبايتات.</dd>
+<dt>الأثر</dt><dd>توزيع الأحجام وعدد الحزم (مهمان لكشف تسريب البيانات) مشوّهان. أما مجموع البايتات فيبقى صحيحًا تقريبًا.</dd>
+<dt>الدليل</dt><dd><strong>10,071</strong> سجلًا أكبر من 1,514 بايت (أقصى إطار Ethernet)، منها <strong>1,257</strong> أكبر من 9,000 بايت، وأكبرها 36,714.</dd>
+<dt>المكتملة</dt><dd>جزئيًا. تجمع طول IP من الرأس وتحفظ طول السلك منفصلًا، فمجاميع التدفق صحيحة. لكن عدد الحزم على الجهاز المُرسِل نفسه يبقى أقل من الحقيقة لأن هذا خاصية نقطة الالتقاط. الحل الالتقاط من منفذ مرآة (SPAN) أو تعطيل التجزئة في المختبر.</dd>
+</dl></div>
+
+<div class="f high"><div class="hd"><span class="id">O-4</span><span class="badge sev high">عالٍ</span><span class="badge ev data">مُثبت بالبيانات</span><span class="badge st fixed">حُلّت</span><span class="t">IPv6 غير مرئي بالكامل</span></div>
+<div class="loc"><code>network_capture.py:13</code>: <code>if IP not in packet: return</code></div>
+<dl>
+<dt>الآلية</dt><dd><code>IP</code> في Scapy هو IPv4 فقط.</dd>
+<dt>الأثر</dt><dd>كل حركة IPv6 تمر دون رؤية، ومنها عناوين link-local التي تعمل في كل شبكة محلية حديثة دون إعداد. هذا طريق مفتوح للتهرب.</dd>
+<dt>الدليل</dt><dd>البروتوكولات في الملف 6 و17 و2 و1 فقط، ولا سجل IPv6 واحد.</dd>
+<dt>المكتملة</dt><dd>IPv4 وIPv6، بما في ذلك رؤوس الامتداد والتجزئة.</dd>
+</dl></div>
+
+<div class="f high"><div class="hd"><span class="id">O-5</span><span class="badge sev high">عالٍ</span><span class="badge ev">من قراءة الكود</span><span class="badge st fixed">حُلّت</span><span class="t">لا تجميع في تدفقات: حدث لكل حزمة</span></div>
+<div class="loc">الملف كله، و<code>api_server.py:32</code></div>
+<dl>
+<dt>الأثر</dt><dd>حجم Kafka وقاعدة البيانات يساوي عدد الحزم، أي مئات الملايين يوميًا على وصلة مشغولة. والميزات التي تحتاجها الكشوف (عدد الاتصالات لكل مضيف، والاتصالات الفاشلة، والبايتات لكل جلسة) لا تُستخرج من حزم مفردة دون إعادة بناء التدفقات لاحقًا.</dd>
+<dt>المكتملة</dt><dd>تدفقات ثنائية الاتجاه بمفتاح خماسي، مع مهلة خمول ومهلة نشاط وحد لجدول التدفقات.</dd>
+</dl></div>
+
+<div class="f high"><div class="hd"><span class="id">O-6</span><span class="badge sev high">عالٍ</span><span class="badge ev">من قراءة الكود</span><span class="badge st fixed">حُلّت</span><span class="t">التقاط بلا واجهة محددة ولا مرشح، وبالوضع المختلط افتراضيًا</span></div>
+<div class="loc"><code>network_capture.py:76</code></div>
+<dl>
+<dt>الآلية</dt><dd><code>sniff()</code> دون <code>iface</code> يلتقط من واجهة Scapy الافتراضية، ودون <code>filter</code> يأخذ كل شيء. وقيمة <code>conf.sniff_promisc</code> الافتراضية True، فيلتقط حركة الأجهزة الأخرى على المقطع نفسه (Wi‑Fi مشترك أو منفذ مرآة).</dd>
+<dt>الأثر</dt><dd>جمع حركة أجهزة لا يملكها المشغّل دون أي تفويض، وهذا خطر قانوني وخطر على الخصوصية. ولا طريقة لتحديد ما يُراقب.</dd>
+<dt>المكتملة</dt><dd>الالتقاط الحي معطّل افتراضيًا ويحتاج <code>AGENT_LIVE_CAPTURE_AUTHORIZED</code>. الوضع المختلط يحتاج قائمة شبكات مسموحة، ومرشح BPF يستبعد حركة الوكيل نفسه (<code>packages/config/sections.py</code>، المدقق <code>_collector_safeguards</code>).</dd>
+</dl></div>
+
+<div class="f med"><div class="hd"><span class="id">O-7</span><span class="badge sev med">متوسط</span><span class="badge ev">من قراءة الكود</span><span class="badge st fixed">حُلّت</span><span class="t">حلقة تغذية ذاتية كامنة: كل حزمة تولّد حزمًا جديدة تُلتقط</span></div>
+<div class="loc"><code>network_capture.py:9</code>، <code>:60-66</code></div>
+<dl>
+<dt>الآلية</dt><dd>كل حزمة ملتقطة تفتح اتصال TCP جديدًا نحو الخادم، أي نحو 8 إلى 10 حزم (المصافحة والطلب والرد والإغلاق). اليوم الخادم على <code>127.0.0.1</code> والالتقاط على واجهة غير الـ loopback فلا تُرى هذه الحزم. لكن ما إن ينتقل الخادم إلى جهاز آخر (وهذا ما يتطلبه أي نشر فعلي) حتى تولّد كل حزمة ملتقطة عشر حزم تُلتقط بدورها، فتتضاعف الحركة إلى أن تتشبع.</dd>
+<dt>الدليل</dt><dd>لا حزم على المنفذين 8000 و9092 في الملف، فالحلقة لم تحدث في الإعداد المجرّب. هي عيب تصميم كامن، وليست شيئًا وقع.</dd>
+<dt>المكتملة</dt><dd>المرشح يستبعد عناوين الخادم وKafka (<code>live_capture.py:158-171</code>)، والإرسال دفعات لا طلب لكل حزمة.</dd>
+</dl></div>
+
+<div class="f high"><div class="hd"><span class="id">O-8</span><span class="badge sev high">عالٍ</span><span class="badge ev">من قراءة الكود</span><span class="badge st fixed">حُلّت</span><span class="t">CSV وKafka يفترقان، ولا إعادة محاولة ولا تخزين مؤقت</span></div>
+<div class="loc"><code>network_capture.py:32-46</code> ثم <code>:60-70</code></div>
+<dl>
+<dt>الآلية</dt><dd>السطر يُكتب في CSV أولًا، وفشل الإرسال يُطبع فقط.</dd>
+<dt>الأثر</dt><dd>أي توقف للخادم أو Kafka يعني فقدًا دائمًا في خط المعالجة بينما يحتفظ CSV بالحزم. يصبح للنظام مصدران للحقيقة لا يتطابقان، ولا يمكن معرفة ما وصل منها.</dd>
+<dt>المكتملة</dt><dd>مخزن محلي، ونقطة الاستئناف تُحفظ في المعاملة نفسها مع الأحداث. في المختبر: انقطاع الخادم 30 ثانية، وخُزّن 1,163 حدثًا مؤقتًا ثم سُلّمت كلها.</dd>
+</dl></div>
+
+<div class="f med"><div class="hd"><span class="id">O-9</span><span class="badge sev med">متوسط</span><span class="badge ev data">مُثبت بالبيانات</span><span class="badge st fixed">حُلّت</span><span class="t">ملف يكبر بلا حد ويحفظ عناوين شبكاتك الحقيقية نصًا واضحًا</span></div>
+<div class="loc"><code>network_capture.py:8</code>، <code>:34</code></div>
+<dl>
+<dt>الأثر</dt><dd>14.9 MB خلال 2.75 يوم من التقاط بطيء أصلًا (O-1)، دون تدوير ولا تشفير، وداخل مجلد المشروع، فخطر رفعه إلى المستودع قائم.</dd>
+<dt>المكتملة</dt><dd>المخزن المحلي مشفّر بـ AES-256-GCM لكل سجل (<code>apps/agent/spool_crypto.py</code>)، وقاعدة البيانات هي المصدر الوحيد للحقيقة.</dd>
+</dl></div>
+
+<h3>4.2 <code>api_server.py</code> <span class="path">(49 سطرًا: الاستقبال والنشر إلى Kafka)</span></h3>
+
+<div class="f crit"><div class="hd"><span class="id">O-10</span><span class="badge sev crit">حرج</span><span class="badge ev">من قراءة الكود</span><span class="badge st fixed">حُلّت</span><span class="t">نجاح كاذب: الرد «received» حتى عندما يرفض Kafka الرسالة</span></div>
+<div class="loc"><code>api_server.py:32-33</code>، <code>:41-44</code></div>
+<dl>
+<dt>الآلية</dt><dd><code>producer.send()</code> يعيد Future لا يُفحص أبدًا. و<code>flush()</code> في kafka-python ينتظر الطلبات لكنه لا يرفع خطأ الرسائل الفاشلة، فتُبتلع أخطاء مثل غياب الموضوع عند تعطيل الإنشاء التلقائي، أو الرسالة الأكبر من الحد، أو رفض الصلاحيات.</dd>
+<dt>الأثر</dt><dd>فقد صامت، والمرسل يظن أن الحزمة وصلت.</dd>
+<dt>المكتملة</dt><dd>202 لا يُرد إلا بعد إقرار Kafka لكل حدث (<code>apps/api/publisher.py:163-183</code>)، وأي رفض يعيد 503 فيحتفظ الوكيل بالأحداث.</dd>
+</dl></div>
+
+<div class="f high"><div class="hd"><span class="id">O-11</span><span class="badge sev high">عالٍ</span><span class="badge ev">من قراءة الكود</span><span class="badge st fixed">حُلّت</span><span class="t">المنتِج يُنشأ عند الاستيراد، وغياب Kafka يجمّد الطلبات حتى 60 ثانية</span></div>
+<div class="loc"><code>api_server.py:12-15</code></div>
+<dl>
+<dt>الآلية</dt><dd>مُنشئ <code>KafkaProducer</code> يتصل فورًا، فإن لم يكن Kafka يعمل فشل الاستيراد (<code>NoBrokersAvailable</code>) ولم يبدأ الخادم. وإذا غاب Kafka بعد التشغيل ينتظر <code>send()</code> حتى <code>max_block_ms</code> (60 ثانية افتراضيًا). والدالة متزامنة (<code>def</code>) فتعمل في مجمّع خيوط محدود (40 خيطًا)، فيتجمد الخادم كله.</dd>
+<dt>الأثر</dt><dd>يقطع العميل الاتصال بعد ثانيتين فيعدّ الحزمة ضائعة، مع أن الرسالة قد تُرسل لاحقًا. فلا يمكن الوثوق بالرد في أي اتجاه.</dd>
+<dt>المكتملة</dt><dd>المنتِج يبدأ في <code>lifespan</code> ويعيد الاتصال في الخلفية، وفحص الجاهزية يعرض حالة Kafka، والإرسال بمهلة محددة.</dd>
+</dl></div>
+
+<div class="f high"><div class="hd"><span class="id">O-12</span><span class="badge sev high">عالٍ</span><span class="badge ev">من قراءة الكود</span><span class="badge st fixed">حُلّت</span><span class="t">لا مصادقة ولا حد للمعدل، والتحقق من المحتوى شكلي</span></div>
+<div class="loc"><code>api_server.py:18-29</code></div>
+<dl>
+<dt>الآلية</dt><dd>كل حقل يقبل تقريبًا أي قيمة:
+<ul>
+  <li><code>timestamp: str</code> و<code>src_ip: str</code>: أي نص.</li>
+  <li><code>protocol: int</code> و<code>packet_size: int</code>: يقبلان القيم السالبة.</li>
+  <li>المنافذ <code>Union[int, str]</code>.</li>
+</ul></dd>
+<dt>الأثر</dt><dd>من يصل إلى المنفذ يستطيع حقن «حزم» مزيّفة في Kafka، فيُسمّم البيانات التي سيتدرب عليها التعلم الآلي. والقيم الشاذة توقف المستهلك (O-14). صحيح أن uvicorn يستمع على <code>127.0.0.1</code> افتراضيًا، لكن هذه حماية عرضية لا تصميم.</dd>
+<dt>المكتملة</dt><dd>رمز لكل عميل، مع ربط بـ <code>agent_id</code> وبالمضيفين المسموحين (<code>apps/api/routes/events.py:267-278</code>)، وحد للمعدل، ومخطط أحداث صارم.</dd>
+</dl></div>
+
+<h3>4.3 <code>kafka_consumer.py</code> <span class="path">(22 سطرًا)</span></h3>
+
+<div class="f high"><div class="hd"><span class="id">O-13</span><span class="badge sev high">عالٍ</span><span class="badge ev">من قراءة الكود</span><span class="badge st fixed">حُلّت</span><span class="t">بلا مجموعة مستهلكين: كل ما نُشر أثناء توقفه لا يُعالج أبدًا</span></div>
+<div class="loc"><code>kafka_consumer.py:5-11</code></div>
+<dl>
+<dt>الآلية</dt><dd>عندما يكون <code>group_id=None</code> لا تُحفظ المواقع، فيُتجاهل <code>enable_auto_commit</code>. ومع <code>auto_offset_reset="latest"</code> يبدأ كل تشغيل من النهاية.</dd>
+<dt>الأثر</dt><dd>كل إعادة تشغيل للمستهلك تترك فجوة دائمة.</dd>
+<dt>المكتملة</dt><dd>مستهلك المُطبِّع ضمن مجموعة، ولا يحفظ الموقع إلا بعد الكتابة في قاعدة البيانات.</dd>
+</dl></div>
+
+<div class="f med"><div class="hd"><span class="id">O-14</span><span class="badge sev med">متوسط</span><span class="badge ev">من قراءة الكود</span><span class="badge st fixed">حُلّت</span><span class="t">رسالة واحدة ناقصة أو غير JSON توقف المستهلك</span></div>
+<div class="loc"><code>kafka_consumer.py:10</code>، <code>:19-22</code></div>
+<dl>
+<dt>الآلية</dt><dd>غياب أي مفتاح يرفع <code>KeyError</code>، والنص غير الصالح يرفع خطأ من <code>json.loads</code> داخل المكرِّر، فتنتهي العملية. وبما أن الخادم لا يتحقق جيدًا (O-12) فالرسائل السيئة ممكنة.</dd>
+<dt>المكتملة</dt><dd>الرسالة المعطوبة تذهب إلى <code>adis.deadletter</code> مع السبب، ويستمر المعالجة.</dd>
+</dl></div>
+
+<div class="f high"><div class="hd"><span class="id">O-15</span><span class="badge sev high">عالٍ</span><span class="badge ev">من قراءة الكود</span><span class="badge st fixed">حُلّت</span><span class="t">لا تخزين: المستهلك يطبع فقط</span></div>
+<div class="loc"><code>kafka_consumer.py:15-22</code></div>
+<dl>
+<dt>الأثر</dt><dd>لا شيء يبقى بعد مدة احتفاظ Kafka، ولا مصدر حقيقة. وKafka ليس مخزنًا دائمًا، كما تنص قواعد المشروع.</dd>
+<dt>المكتملة</dt><dd>PostgreSQL هو مصدر الحقيقة، مع منع التكرار وكشف التعارض.</dd>
+</dl></div>
+
+<h3>4.4 <code>analyze_data.py</code> وبيانات <code>network_data.csv</code></h3>
+
+<div class="f med"><div class="hd"><span class="id">O-16</span><span class="badge sev med">متوسط</span><span class="badge ev data">مُثبت بالبيانات</span><span class="badge st fixed">حُلّت</span><span class="t">المنافذ تتحول إلى أعداد عشرية، والحزم بلا منافذ تختفي من الإحصاء</span></div>
+<div class="loc"><code>network_capture.py:22-23</code> (القيمة <code>""</code>)، <code>analyze_data.py:10</code>، <code>:35</code></div>
+<dl>
+<dt>الآلية</dt><dd>الخلية الفارغة تُقرأ <code>NaN</code>، فيصير العمود كله عشريًا (443 تظهر 443.0). و<code>value_counts()</code> يتجاهل <code>NaN</code> دون تنبيه.</dd>
+<dt>الدليل</dt><dd><strong>217</strong> حزمة بلا منافذ (IGMP 202 وICMP 15) لا تظهر في إحصاء المنافذ.</dd>
+<dt>المكتملة</dt><dd>المنفذ حقل اختياري صحيح النوع في المخطط، وغيابه <code>null</code> لا نص فارغ.</dd>
+</dl></div>
+
+<div class="f med"><div class="hd"><span class="id">O-17</span><span class="badge sev med">متوسط</span><span class="badge ev data">مُثبت بالبيانات</span><span class="badge st part">جزئيًا</span><span class="t">البيانات لا تميّز «لا حركة» من «الالتقاط متوقف»</span></div>
+<div class="loc">الملف كله: لا سجل لبدء الالتقاط أو توقفه</div>
+<dl>
+<dt>الأثر</dt><dd>أي خط أساس للمعدل يُتعلّم من هذه البيانات سيعدّ ساعات التوقف هدوءًا طبيعيًا.</dd>
+<dt>الدليل</dt><dd>4 فجوات تتجاوز الدقيقة: 595 ث، و11.9 ساعة، و21.1 ساعة، و<strong>30.8 ساعة</strong>، ضمن مدة كلية قدرها 66.2 ساعة.</dd>
+<dt>المكتملة</dt><dd>جزئيًا. حدث تسجيل الوكيل و<code>last_seen</code> يبيّنان متى أرسل الوكيل، لكن لا نبض حياة لكل جامع (C-14).</dd>
+</dl></div>
+
+<div class="f low"><div class="hd"><span class="id">O-18</span><span class="badge sev low">منخفض</span><span class="badge ev">من قراءة الكود</span><span class="badge st fixed">حُلّت</span><span class="t">التحليل يحمّل الملف كاملًا في الذاكرة</span></div>
+<div class="loc"><code>analyze_data.py:10</code></div>
+<dl>
+<dt>الأثر</dt><dd>نحو 70 بايت للسطر. يكفي الآن، لكنه لا يتوسع مع التقاط مستمر بالسرعة الحقيقية.</dd>
+<dt>المكتملة</dt><dd>الاستعلام من قاعدة البيانات مع فهارس، ولا ملفات تُحمّل كاملة.</dd>
+</dl></div>
+</section>
+
+<section id="muna">
+<h2>5. muna: نقاط الضعف ملفًا ملفًا</h2>
+<p class="sub">المسارات نسبةً إلى <code>muna/ADIS-main/src/adis/</code>.</p>
+
+<h3>5.1 البوابة: <code>gateway/main.py</code> و<code>gateway/routes/events.py</code> و<code>collectors/gateway_client.py</code></h3>
+
+<div class="f crit"><div class="hd"><span class="id">M-1</span><span class="badge sev crit">حرج</span><span class="badge ev">من قراءة الكود</span><span class="badge st fixed">حُلّت</span><span class="t">الكتابة إلى البوابة بلا مصادقة ولا حد للمعدل</span></div>
+<div class="loc"><code>gateway/routes/events.py:60-100</code>، <code>:146-248</code>؛ <code>gateway/main.py:87-99</code> (الوسيط الوحيد هو حد حجم الجسم)؛ <code>collectors/gateway_client.py:79-88</code> (لا يرسل أي هوية)</div>
+<dl>
+<dt>الآلية</dt><dd>واجهة القراءة محمية بمفتاح (<code>gateway/routes/query.py:53</code>)، أما واجهة الكتابة فلا. أي جهاز يصل إلى المنفذ يرسل أحداثًا بأي <code>hostname</code> و<code>source</code> و<code>username</code>.</dd>
+<dt>الأثر</dt><dd>تسميم البيانات: أحداث مزيّفة تدخل Kafka وقاعدة البيانات كأنها من جامعات حقيقية، فتُفسد خط الأساس الذي يتعلمه كشف الشذوذ، ويمكن إغراق البوابة.</dd>
+<dt>المكتملة</dt><dd>رموز لكل عميل، وربط بالوكيل والمضيف، وحد للمعدل (<code>apps/api/routes/events.py:267-278</code>، <code>apps/api/rate_limit.py</code>).</dd>
+</dl></div>
+
+<div class="f high"><div class="hd"><span class="id">M-2</span><span class="badge sev high">عالٍ</span><span class="badge ev">من قراءة الكود</span><span class="badge st fixed">حُلّت</span><span class="t">الثقة بمعرّف الحدث من العميل، مع <code>ON CONFLICT DO NOTHING</code>: الحدث الأول يفوز بصمت</span></div>
+<div class="loc"><code>common/normalize.py:80</code>، <code>db/writer.py:102-123</code></div>
+<dl>
+<dt>الآلية</dt><dd>البوابة تحتفظ بأي <code>event_uid</code> يرسله العميل، والكاتب يُسقط أي صف لاحق بالمعرّف نفسه دون مقارنة المحتوى.</dd>
+<dt>الأثر</dt><dd>جامع فيه خلل يعيد استخدام معرّف لمحتوى مختلف تُسقط أحداثه دون أي أثر. ومع M-1 يستطيع حدث مزوّر يسبق الحقيقي إلى معرّفه أن يُخفيه. المعرّفات uuid5 بفضاءات أسماء ثابتة منشورة في الكود (<code>collectors/windows_eventlog/mapping.py:25</code>، <code>collectors/pcap/mapping.py:29</code>)، لكنها تتضمن أوقاتًا دقيقة، فالتنبؤ بها صعب عمليًا. الخطر اليومي الأكبر إذن هو الخلل الصامت.</dd>
+<dt>المكتملة</dt><dd>التكرار المطابق يُمتص، والتكرار بمحتوى مختلف يُكشف ويُرسل إلى الرسائل المرفوضة (<code>apps/normalizer/pipeline.py:81</code>، <code>:567</code>). في المختبر رُفضت 3,928 حالة تعارض، ولم يُخزّن شيء مرتين.</dd>
+</dl></div>
+
+<div class="f high"><div class="hd"><span class="id">M-3</span><span class="badge sev high">عالٍ</span><span class="badge ev">من قراءة الكود</span><span class="badge st fixed">حُلّت</span><span class="t">طلب HTTP متزامن جديد لكل حدث في جامعات Windows وPCAP والالتقاط الحي</span></div>
+<div class="loc"><code>collectors/gateway_client.py:78-112</code>؛ يُستخدم في <code>collectors/cli.py:103-112</code>، و<code>collectors/pcap/__main__.py:98</code>، و<code>collectors/pcap/processor.py:138</code>، و<code>collectors/livecapture/collector.py:246</code></div>
+<dl>
+<dt>الآلية</dt><dd><code>urllib</code> باتصال جديد لكل حدث، دون إبقاء الاتصال ودون دفعات. جامع NetFlow وحده يستخدم واجهة الدفعات.</dd>
+<dt>الأثر</dt><dd>الإنتاجية تساوي تقريبًا 1 مقسومة على زمن الرحلة. عند 5 ms يكون الحد نحو 200 حدث/ث لكل جامع، وملف PCAP فيه 100 ألف تدفق يحتاج دقائق. وفي الالتقاط الحي يوقف هذا التجميع (M-10).</dd>
+<dt>المكتملة</dt><dd>كل الجامعات تكتب إلى المخزن، ومُرسِل واحد يرسل دفعات قابلة للضبط عبر httpx.</dd>
+</dl></div>
+
+<div class="f low"><div class="hd"><span class="id">M-4</span><span class="badge sev low">منخفض</span><span class="badge ev">من قراءة الكود</span><span class="badge st open">باقية</span><span class="t">لا حد أدنى لوقت الحدث</span></div>
+<div class="loc"><code>common/normalize.py:44-52</code> (يفحص المستقبل فقط)</div>
+<dl>
+<dt>الأثر</dt><dd>حدث بتاريخ قديم جدًا يُقبل، فيقع في نوافذ زمنية قديمة لا تراها نوافذ الكشف الآنية، أي أنه يختفي فعليًا عن الكشف.</dd>
+<dt>المكتملة</dt><dd>باقية. المُطبِّع يقبل الحدث ذا الوقت المستقبلي ويضع عليه علامة ويعدّه (<code>apps/normalizer/normalization.py:164-194</code>)، ولا فحص للماضي.</dd>
+</dl></div>
+
+<h3>5.2 Windows: <code>collectors/windows_eventlog/collector.py</code> و<code>collectors/checkpoint.py</code> و<code>collectors/windows_auth/mapping.py</code></h3>
+
+<div class="f high"><div class="hd"><span class="id">M-5</span><span class="badge sev high">عالٍ</span><span class="badge ev">من قراءة الكود</span><span class="badge st part">جزئيًا</span><span class="t">لا مخزن محلي: عند تعطل البوابة يعتمد الجامع على بقاء الأحداث في سجل Windows</span></div>
+<div class="loc"><code>collectors/windows_eventlog/collector.py:6-9</code>، <code>:196-204</code></div>
+<dl>
+<dt>الآلية</dt><dd>يتوقف الجامع عند أول فشل ويعود إلى السجل نفسه لاحقًا. فإذا امتلأ سجل Security أثناء الانقطاع (حجمه الافتراضي 20 MB ويكتب فوق الأقدم) ضاعت السجلات، ولا يحدث إلا تحذير في السجل.</dd>
+<dt>الأثر</dt><dd>على خادم مشغول (مثل متحكم نطاق) قد يدور السجل خلال ساعات، فانقطاع طويل للبوابة يعني فقدًا دائمًا لأحداث المصادقة، وهي أهم ما يُجمع.</dd>
+<dt>المكتملة</dt><dd>جزئيًا. الأحداث تُقرأ إلى المخزن المشفّر فور ظهورها، فانقطاع الخادم لا يوقف القراءة. لكن عندما يمتلئ المخزن تتوقف القراءة (<code>apps/agent/agent.py:88-96</code>) ويعود الخطر نفسه، وإن كان بعد مدة أطول بكثير.</dd>
+</dl></div>
+
+<div class="f med"><div class="hd"><span class="id">M-6</span><span class="badge sev med">متوسط</span><span class="badge ev">من قراءة الكود</span><span class="badge st fixed">حُلّت</span><span class="t">نقطة الاستئناف تُحفظ مرة في نهاية الدورة ودون fsync، والملف التالف يعني القفز إلى الأحدث</span></div>
+<div class="loc"><code>collectors/windows_eventlog/collector.py:118-140</code>؛ <code>collectors/checkpoint.py:24-45</code>، <code>:47-59</code></div>
+<dl>
+<dt>الآلية</dt><dd>يحدث خللان:
+<ol>
+  <li>الحفظ مرة واحدة في <code>finally</code> بعد كل دورة، فانهيار العملية وسط الدورة يعيد إرسال حتى <code>max_events_per_poll</code> حدث (وهي مكررة تُمتص).</li>
+  <li><code>write_text</code> ثم <code>os.replace</code> دون <code>fsync</code>. بعد انقطاع الكهرباء قد يصبح الملف فارغًا، فينقله <code>load()</code> إلى <code>.corrupt</code> ويعيد قاموسًا فارغًا، فيبدأ الجامع من أحدث سجل. كل ما بين ذلك يُتخطى، مع رسالة واحدة في السجل.</li>
+</ol></dd>
+<dt>المكتملة</dt><dd>نقطة الاستئناف تُكتب في معاملة SQLite نفسها مع الأحداث التي تغطيها (<code>EventSink.submit(events, checkpoints=...)</code>).</dd>
+</dl></div>
+
+<div class="f med"><div class="hd"><span class="id">M-7</span><span class="badge sev med">متوسط</span><span class="badge ev run">مُثبت بالتشغيل</span><span class="badge st open">باقية</span><span class="t">فشل الدخول وقفل الحساب بشدة «معلوماتية»</span></div>
+<div class="loc"><code>collectors/windows_auth/mapping.py:280</code>: <code>SEVERITY_FOR_LEVEL[level_name(event.level)]</code></div>
+<dl>
+<dt>الآلية</dt><dd>أحداث سجل Security تحمل Level 0 (LogAlways)، والنجاح والفشل يميّزهما Keywords (Audit Success أو Audit Failure) لا المستوى. فيصير كل شيء «information».</dd>
+<dt>الأثر</dt><dd>المشغّل الذي يصفّي الأحداث حسب الشدة لا يرى فشل الدخول ولا قفل الحساب. فواجهة المشغّل تصفّي على <code>severity_hint</code> (<code>apps/operator_api/app.py:122</code>)، وإن كانت نماذج الكشف لا تعتمد عليه.</dd>
+<dt>الدليل</dt><dd>شغّلت المحوّل المنقول في النسخة المكتملة على ملفات الاختبار: 4625 (كلمة مرور خاطئة) <code>info</code>، و4625 (حساب غير موجود) <code>info</code>، و4740 (قفل حساب) <code>info</code>، وكذلك 104 (مسح السجل) و7045 (تثبيت خدمة) <code>info</code>.</dd>
+<dt>المكتملة</dt><dd>باقية، فقد نُقلت كما هي (<code>apps/agent/collectors/windows_auth.py:301</code>، <code>windows_events.py:579</code>).</dd>
+</dl></div>
+
+<div class="f med"><div class="hd"><span class="id">M-8</span><span class="badge sev med">متوسط</span><span class="badge ev">من قراءة الكود</span><span class="badge st part">جزئيًا</span><span class="t">الجلسات: في الذاكرة فقط، وبلا 4672، وبلا ربط الجلسات المرتبطة، وبلا متجه جلسة</span></div>
+<div class="loc"><code>collectors/windows_auth/mapping.py:143-161</code>، <code>:289-338</code></div>
+<dl>
+<dt>الآلية</dt><dd>لأربعة أسباب:
+<ul>
+  <li><code>SessionTracker</code> قاموس في الذاكرة، فبعد إعادة التشغيل يصل الخروج بلا مدة.</li>
+  <li>دخول المدير مع UAC يولّد حدثي 4624 مرتبطين عبر <code>TargetLinkedLogonId</code>، فيُتتبعان منفصلين.</li>
+  <li>4672 (امتيازات خاصة) لا يُجمع، فلا يُعرف أن الجلسة امتيازية.</li>
+  <li>الناتج حدثا بداية ونهاية في فئة <code>user_behavior</code> منفصلة، لا متجه جلسة.</li>
+</ul></dd>
+<dt>الأثر</dt><dd>أهم سؤال في كشف سلوك المستخدم («جلسة امتيازية غير معتادة المدة أو الوقت») لا يمكن الإجابة عنه.</dd>
+<dt>المكتملة</dt><dd>جزئيًا. أُضيف ربط الجلسات المرتبطة و4672 ومتجه <code>adis.session_vector.v1</code> بعشر ميزات، لكن المتتبع ما زال في الذاكرة (C-13).</dd>
+</dl></div>
+
+<h3>5.3 الشبكة: <code>collectors/pcap/flows.py</code> و<code>processor.py</code> و<code>collectors/livecapture/</code> و<code>collectors/flowcollector/</code></h3>
+
+<div class="f high"><div class="hd"><span class="id">M-9</span><span class="badge sev high">عالٍ</span><span class="badge ev">من قراءة الكود</span><span class="badge st fixed">حُلّت</span><span class="t">التدفقات أحادية الاتجاه: كل اتصال يصبح حدثين مستقلين</span></div>
+<div class="loc"><code>collectors/pcap/flows.py:3-7</code>، <code>:66-74</code></div>
+<dl>
+<dt>الأثر</dt><dd>يترتب على ذلك:
+<ul>
+  <li>عدد الاتصالات يتضاعف.</li>
+  <li>النسب التي تحتاجها الكشوف (بايتات الخروج إلى الدخول، و«SYN بلا رد»، وزمن الاستجابة) تتطلب ربط المفتاح ومعكوسه لاحقًا، ولا شيء في muna يفعل ذلك.</li>
+  <li>التخزين يتضاعف.</li>
+</ul></dd>
+<dt>المكتملة</dt><dd>مفتاح ثنائي الاتجاه مع تحديد البادئ وعدّادات لكل اتجاه.</dd>
+</dl></div>
+
+<div class="f high"><div class="hd"><span class="id">M-10</span><span class="badge sev high">عالٍ</span><span class="badge ev">من قراءة الكود</span><span class="badge st fixed">حُلّت</span><span class="t">الالتقاط الحي يجمّع ويرسل في الحلقة نفسها: الإرسال يوقف التجميع فتسقط الحزم</span></div>
+<div class="loc"><code>collectors/livecapture/collector.py:36</code> (<code>_SEND_BUDGET = 200</code>)، <code>:153-187</code>، <code>:225-280</code>؛ <code>collectors/livecapture/source.py:150-152</code></div>
+<dl>
+<dt>الآلية</dt><dd>كل دورة قد ترسل حتى 200 تدفق، كل واحد بطلب متزامن (M-3). عند 5 ms للطلب يمر نحو ثانية دون سحب أي حزمة من الطابور، وخيط الالتقاط يُسقط عند الامتلاء.</dd>
+<dt>الأثر</dt><dd>الحزم المُسقطة تجعل عدّادات التدفقات خاطئة في أكثر لحظة تهم، أي وقت الحركة الكثيفة.</dd>
+<dt>المكتملة</dt><dd>الجامع يكتب إلى المخزن فقط، والإرسال مهمة غير متزامنة منفصلة.</dd>
+</dl></div>
+
+<div class="f high"><div class="hd"><span class="id">M-11</span><span class="badge sev high">عالٍ</span><span class="badge ev">من قراءة الكود</span><span class="badge st fixed">حُلّت</span><span class="t">مراقبة غير مستمرة: ساعة واحدة كحد أقصى، والتوقف الكامل بعد دقيقتين من تعطل البوابة</span></div>
+<div class="loc"><code>collectors/livecapture/config.py:33-40</code>؛ <code>collectors/livecapture/collector.py:168-170</code>، <code>:214-216</code></div>
+<dl>
+<dt>الآلية</dt><dd>ثلاثة قيود معًا:
+<ul>
+  <li><code>max_duration_seconds</code> افتراضيه 3,600.</li>
+  <li><code>give_up_after_seconds</code> قيمته 120، وبعده يتوقف الالتقاط كله.</li>
+  <li>التدفقات المنتظرة في الذاكرة (حتى 10,000، ويُحذف الأقدم) تضيع إذا انهارت العملية.</li>
+</ul></dd>
+<dt>الأثر</dt><dd>يكفي المهاجم أن يجعل البوابة غير متاحة دقيقتين، أو أن ينتظر انتهاء الساعة، لتتوقف مراقبة الشبكة.</dd>
+<dt>المكتملة</dt><dd>تعمل باستمرار ضمن خدمة الوكيل، وتخزّن في المخزن عند الانقطاع، و<code>run --duration</code> اختياري.</dd>
+</dl></div>
+
+<div class="f med"><div class="hd"><span class="id">M-12</span><span class="badge sev med">متوسط</span><span class="badge ev">من قراءة الكود</span><span class="badge st part">جزئيًا</span><span class="t">ملف PCAP: إرسال متسلسل لكل تدفق، وأي انقطاع يتجاوز المهلة يعني إعادة الملف كله</span></div>
+<div class="loc"><code>collectors/pcap/processor.py:80-92</code>، <code>:118-120</code>، <code>:133-149</code>؛ <code>collectors/pcap/__main__.py:98</code> (<code>keep_checkpoints=False</code>)</div>
+<dl>
+<dt>الأثر</dt><dd>الملفات الكبيرة بطيئة جدًا (M-3)، وكل محاولة فاشلة تبدأ من أول الملف. المعرّفات حتمية، فالتكرار يُمتص، لكن العمل يُعاد كله.</dd>
+<dt>المكتملة</dt><dd>جزئيًا. التدفقات تذهب إلى المخزن أثناء القراءة، لكن علامة الملف (الحجم ووقت التعديل) لا تُحفظ إلا بعد انتهائه (<code>apps/agent/collectors/pcap.py:70-89</code>). فانهيار العملية وسط ملف يعيد قراءته كاملًا، والتكرار يُمتص.</dd>
+</dl></div>
+
+<div class="f med"><div class="hd"><span class="id">M-13</span><span class="badge sev med">متوسط</span><span class="badge ev">من قراءة الكود</span><span class="badge st part">جزئيًا</span><span class="t">الالتقاط الحي على Windows مع Npcap فقط</span></div>
+<div class="loc"><code>collectors/livecapture/source.py:1</code>، <code>:191-196</code></div>
+<dl>
+<dt>الأثر</dt><dd>خوادم Linux، وهي غالب ما يُهاجم، لا تُراقب حيًا.</dd>
+<dt>المكتملة</dt><dd>جزئيًا. libpcap على Linux جُرّب في المختبر وأُصلح فيه خلل حقيقي (<code>conf.use_pcap=True</code>). أما Windows فيحتاج Npcap ولم يُجرَّب لأننا لا نثبّت تعريفات.</dd>
+</dl></div>
+
+<div class="f med"><div class="hd"><span class="id">M-14</span><span class="badge sev med">متوسط</span><span class="badge ev">من قراءة الكود</span><span class="badge st fixed">حُلّت</span><span class="t">جامع NetFlow يحفظ طابوره في الذاكرة: الانهيار المفاجئ يضيّع حتى <code>max_pending_flows</code> تدفق</span></div>
+<div class="loc"><code>collectors/flowcollector/service.py:9-12</code>، <code>:106</code></div>
+<dl>
+<dt>الآلية</dt><dd>التدفقات غير المسلّمة لا تُكتب إلى ملف إلا عند الإيقاف النظيف. أما الانهيار أو القتل أو انقطاع الكهرباء فيضيّع الطابور كله.</dd>
+<dt>المكتملة</dt><dd>المخزن المحلي.</dd>
+</dl></div>
+
+<h3>5.4 قاعدة البيانات والسجلات والمشروع</h3>
+
+<div class="f med"><div class="hd"><span class="id">M-15</span><span class="badge sev med">متوسط</span><span class="badge ev">من قراءة الكود</span><span class="badge st part">جزئيًا</span><span class="t"><code>sslmode=prefer</code> افتراضيًا للاتصال بقاعدة البيانات</span></div>
+<div class="loc"><code>common/config.py:57-59</code>، <code>db/engine.py:58</code></div>
+<dl>
+<dt>الآلية</dt><dd><code>prefer</code> في libpq يقبل اتصالًا نصيًا إذا رفض الخادم TLS، أو رفضه وسيط مهاجم. ولا يتحقق من الشهادة حتى مع TLS.</dd>
+<dt>الأثر</dt><dd>مع Supabase المستضاف عبر الإنترنت هناك خطر خفض التشفير وكشف كلمة المرور والبيانات.</dd>
+<dt>المكتملة</dt><dd>جزئيًا. الافتراضي ما زال <code>prefer</code> للتطوير، لكن الإنتاج يرفض أي قيمة أقل من <code>require</code> (<code>packages/config/sections.py:209-234</code>). بيئة staging غير مشمولة.</dd>
+</dl></div>
+
+<div class="f low"><div class="hd"><span class="id">M-16</span><span class="badge sev low">منخفض</span><span class="badge ev">من قراءة الكود</span><span class="badge st fixed">حُلّت</span><span class="t">سجلات نصية بلا request_id ولا trace_id</span></div>
+<div class="loc"><code>common/log.py:5</code></div>
+<dl>
+<dt>الأثر</dt><dd>لا يمكن تتبع حدث واحد من الجامع إلى البوابة فـ Kafka فقاعدة البيانات، ولا تحليل السجلات آليًا للتنبيه.</dd>
+<dt>المكتملة</dt><dd>سجلات JSON منظمة فيها request_id وtrace_id وevent_id وhost_id.</dd>
+</dl></div>
+
+<div class="f med"><div class="hd"><span class="id">M-17</span><span class="badge sev med">متوسط</span><span class="badge ev">من قراءة الكود</span><span class="badge st fixed">حُلّت</span><span class="t">قاعدة بيانات ومخطط ومسار ترحيل منفصلة عن المشروع الأساسي</span></div>
+<div class="loc"><code>db/models.py</code>، <code>db/migrations/versions/20261010_0001_initial_phase_1_schema.py</code></div>
+<dl>
+<dt>الأثر</dt><dd>مصدران للحقيقة لا يمكن دمجهما دون ترحيل يدوي، وبقية مراحل المشروع (الكشف والمناعة) لا تقرأ هذا المخطط. لذلك نُقلت الجامعات وحدها عند الدمج.</dd>
+<dt>المكتملة</dt><dd>مخطط واحد هو <code>adis.security_events</code>، ومسار Alembic واحد.</dd>
+</dl></div>
+
+<div class="f high"><div class="hd"><span class="id">M-18</span><span class="badge sev high">عالٍ</span><span class="badge ev">من وثائق المشروع</span><span class="badge st part">جزئيًا</span><span class="t">التحقق على بيانات حقيقية ناقص في أهم مصدرين</span></div>
+<div class="loc">تقرير muna نفسه (<code>adis_phase1.html</code>) وملفات الاختبار</div>
+<dl>
+<dt>الآلية</dt><dd>سجل Security والالتقاط الحي لم يُشغَّلا على بيانات حقيقية، وNetFlow جُرّب بمُصدِّرات مصطنعة (<code>flowsim</code>).</dd>
+<dt>الأثر</dt><dd>أخطاء مثل الستة التي كشفتها بيانات المختبر الحقيقية في النسخة المكتملة كانت ستبقى مخفية.</dd>
+<dt>المكتملة</dt><dd>جزئيًا. جُرّبت حركة حقيقية لـ PCAP والالتقاط الحي على Linux وNetFlow عبر GoFlow2 وSSH/Syslog وeBPF. لكن سجل Security وauditd والالتقاط على Windows لم تُجرّب (C-11).</dd>
+</dl></div>
+</section>
+
+<section id="main">
+<h2>6. النسخة الأساسية قبل التعديل</h2>
+<p class="sub">المسارات نسبةً إلى <code>phase 1/main/</code>. لم يتغير <code>batcher.py</code> و<code>spool.py</code> و<code>client.py</code> و<code>logfile.py</code> في النسخة المكتملة، فما فيها من ضعف ما زال قائمًا.</p>
+
+<div class="f crit"><div class="hd"><span class="id">B-1</span><span class="badge sev crit">حرج</span><span class="badge ev">من قراءة الكود</span><span class="badge st fixed">حُلّت</span><span class="t">لا حساس حقيقيًا للشبكة ولا للمصادقة ولا للعمليات: كل شيء محاكاة</span></div>
+<div class="loc"><code>apps/agent/collectors/</code> (فيه <code>logfile.py</code> و<code>simulation.py</code> فقط)؛ <code>apps/agent/agent.py:15-20</code>؛ <code>simulation.py:1-15</code></div>
+<dl>
+<dt>الأثر</dt><dd>كل حدث شبكة أو مصادقة في الخط كان <code>source_type="simulator"</code>، وأنماط «الهجمات» فيه كتبها الفريق الذي بنى الكشوف. هذا تقييم دائري: نتائج الكشف لا تقول شيئًا عن حركة حقيقية. وفئة العمليات <code>process</code> لم يكن لها أي منتج (OD-25).</dd>
+<dt>المكتملة</dt><dd>10 جامعات حقيقية (<code>apps/agent/agent.py:277-436</code>)، جُرّبت في مختبر بحركة حقيقية (9,450 حدثًا).</dd>
+</dl></div>
+
+<div class="f high"><div class="hd"><span class="id">B-2</span><span class="badge sev high">عالٍ</span><span class="badge ev">من قراءة الكود</span><span class="badge st open">باقية</span><span class="t">وقت الحدث في جامع السجلات هو وقت القراءة، وهذا يكسر وعد منع التكرار نفسه</span></div>
+<div class="loc"><code>apps/agent/collectors/logfile.py:181</code>: <code>timestamp=datetime.now(UTC)</code>؛ الوعد في <code>:11-12</code></div>
+<dl>
+<dt>الآلية</dt><dd>وقت السطر نفسه يُتجاهل. بعد توقف الوكيل، أو مع <code>read_from_start</code>، تأخذ ساعات من السجلات الوقت نفسه تقريبًا. وإذا أُعيدت قراءة سطر (بعد فقد المخزن مثلًا) كان له المعرّف نفسه بوقت جديد، والوقت ليس من الحقول المتطايرة (<code>apps/normalizer/pipeline.py:81</code>). فيراه المُطبِّع تعارضًا ويرسله إلى الرسائل المرفوضة بدل أن يمتصه كتكرار.</dd>
+<dt>الأثر</dt><dd>ميزات النوافذ الزمنية خاطئة لكل ما يأتي من ملفات السجلات.</dd>
+<dt>المكتملة</dt><dd>باقية، فالملف لم يتغير. جامع Syslog الجديد يقرأ وقت الرسالة في RFC 5424، لكن RFC 3164 يُؤرَّخ بوقت الاستلام (C-8).</dd>
+</dl></div>
+
+<div class="f low"><div class="hd"><span class="id">B-3</span><span class="badge sev low">منخفض</span><span class="badge ev">من قراءة الكود</span><span class="badge st open">باقية</span><span class="t">الشدة تُستنتج من كلمات في السطر</span></div>
+<div class="loc"><code>logfile.py:43-47</code>، <code>:218-222</code></div>
+<dl>
+<dt>الأثر</dt><dd>«backup done, 0 failed» يصير متوسط الشدة، و«entering critical section» عالي الشدة. والمشغّل يصفّي على هذا الحقل (<code>apps/operator_api/app.py:122</code>).</dd>
+<dt>المكتملة</dt><dd>باقية في logfile. أما Syslog فيأخذ الشدة من حقل PRI.</dd>
+</dl></div>
+
+<div class="f high"><div class="hd"><span class="id">B-4</span><span class="badge sev high">عالٍ</span><span class="badge ev run">مُثبت بالتشغيل</span><span class="badge st open">باقية واتسعت</span><span class="t">تدوير الملف يُضيّع آخر الأسطر، وcopytruncate ينتج أسطرًا مشوهة</span></div>
+<div class="loc"><code>logfile.py:152-169</code>؛ والخوارزمية نفسها في النسخة المكتملة <code>apps/agent/collectors/tail.py:105-117</code></div>
+<dl>
+<dt>الآلية</dt><dd>حالتان:
+<ul>
+  <li><strong>إعادة التسمية:</strong> يُكتشف التدوير من تغيّر الـ inode، فيُقرأ الملف الجديد من بدايته، أما بقية الملف القديم (ما كُتب بعد آخر قراءة وقبل إعادة التسمية) فلا تُقرأ أبدًا.</li>
+  <li><strong>copytruncate:</strong> إذا قُصّ الملف ثم امتلأ بأكثر من الموضع القديم قبل القراءة التالية، فإن الشرط <code>st_size &lt; offset</code> لا يتحقق، فتستمر القراءة من منتصف المحتوى الجديد.</li>
+</ul></dd>
+<dt>الدليل</dt><dd>شغّلت <code>LineTail</code> الحقيقي:
+<ul>
+  <li>كُتب سطران ثم دُوِّر الملف، فقُرئ <code>line-1, line-2, line-5-new-file</code> فقط وضاع السطران 3 و4.</li>
+  <li>في حالة copytruncate نتج سطر مشوه <code>"2"</code> وضاع <code>new-1</code> و<code>new-2</code>.</li>
+</ul></dd>
+<dt>المكتملة</dt><dd>باقية، واتسع أثرها: <code>tail.py</code> يُستخدم الآن لسجل auditd (الذي يدوّر نفسه عند <code>max_log_file</code>) ولمخرجات eBPF وملف GoFlow2.</dd>
+</dl></div>
+
+<div class="f high"><div class="hd"><span class="id">B-5</span><span class="badge sev high">عالٍ</span><span class="badge ev run">مُثبت بالتشغيل</span><span class="badge st open">باقية</span><span class="t">حدث واحد كبير يخفض حجم الدفعة إلى 1 إلى الأبد</span></div>
+<div class="loc"><code>apps/agent/batcher.py:151-166</code></div>
+<dl>
+<dt>الآلية</dt><dd>عند الرد 413 يُنصّف حجم الدفعة حتى يصل الحدث الكبير وحده فيُعزل. لكن الحجم لا يُعاد إلى قيمته الأصلية إلا بعد <code>MALFORMED</code> (السطر 166)، لا بعد <code>TOO_LARGE</code>.</dd>
+<dt>الدليل</dt><dd>شغّلت <code>Batcher</code> الحقيقي بخادم مزيّف وحجم مضبوط على 500. بعد حدث واحد كبير بين 1,011 حدثًا بقي الحجم <strong>1</strong>، فاحتاج <strong>1,011</strong> طلبًا لـ 1,011 حدثًا بدل نحو 4.</dd>
+<dt>الأثر</dt><dd>انهيار الإنتاجية حتى إعادة تشغيل الوكيل: عند 20 ms للطلب لا يتجاوز 50 حدثًا/ث. وسطر سجل واحد طويل أو تدفق كبير يكفي لإحداث ذلك.</dd>
+<dt>المكتملة</dt><dd>باقية، فالملف لم يتغير.</dd>
+</dl></div>
+
+<div class="f high"><div class="hd"><span class="id">B-6</span><span class="badge sev high">عالٍ</span><span class="badge ev lab">مُثبت في المختبر</span><span class="badge st fixed">حُلّت</span><span class="t">كل إعادة تشغيل للوكيل ترسل حدث تسجيله إلى الرسائل المرفوضة</span></div>
+<div class="loc"><code>apps/agent/registration.py:39-53</code></div>
+<dl>
+<dt>الآلية</dt><dd>المعرّف مشتق من صفات ثابتة، لكن <code>timestamp=datetime.now(UTC)</code> يتغير مع كل تشغيل، فيصير الحدث تكرارًا متعارضًا.</dd>
+<dt>المكتملة</dt><dd>يُعاد استخدام وقت التسجيل الأول المحفوظ في نقطة الاستئناف (<code>apps/agent/registration.py:58</code>، <code>:92</code>)، مع اختبار <code>test_restart_resends_the_identical_registration</code>.</dd>
+</dl></div>
+
+<div class="f med"><div class="hd"><span class="id">B-7</span><span class="badge sev med">متوسط</span><span class="badge ev lab">مُثبت في المختبر</span><span class="badge st open">باقية</span><span class="t">مقارنة التعارض تشمل <code>agent_id</code></span></div>
+<div class="loc"><code>apps/normalizer/pipeline.py:81</code>، <code>:567</code></div>
+<dl>
+<dt>الآلية</dt><dd>هوية أحداث Windows والتدفقات مبنية على المحتوى لا على الوكيل، لكن المقارنة تشمل <code>agent_id</code>. فإذا أُعيد تثبيت الوكيل بهوية جديدة وقرأ التاريخ نفسه، تعارض كل حدث. في النسخة القديمة كان هذا كامنًا لأن معرّفات السجلات تتضمن هوية الوكيل.</dd>
+<dt>الدليل</dt><dd>في المختبر: إعادة القراءة بهوية جديدة أنتجت <strong>3,928</strong> رسالة مرفوضة، ولم يُخزّن شيء مرتين.</dd>
+<dt>المكتملة</dt><dd>باقية، وصارت ظاهرة بعد إضافة الجامعات الحقيقية.</dd>
+</dl></div>
+
+<div class="f high"><div class="hd"><span class="id">B-8</span><span class="badge sev high">عالٍ</span><span class="badge ev">من وثائق المشروع</span><span class="badge st part">جزئيًا</span><span class="t">الأداء أمام Supabase المستضاف، ولا مهمة احتفاظ (retention)</span></div>
+<div class="loc"><code>docs/IMPLEMENTATION_STATUS.md</code> (2026-09-30)، <code>docs/ARCHITECTURE.md</code> OD-15</div>
+<dl>
+<dt>الآلية</dt><dd>المعالجة نحو <strong>0.16 حدث/ث</strong> من جهاز التطوير إلى Supabase المستضاف، مقابل 14 محليًا. والحدث يشغل 13 إلى 20 KB عبر الجداول الستة، أي 1.1 إلى 1.7 GB يوميًا لكل حدث/ث، ومهمة الاحتفاظ لم تُبنَ.</dd>
+<dt>المكتملة</dt><dd>جزئيًا. الذروة المحلية 805 حدث/ث. لكن R-07 (ملايين الرسائل في الثانية) لم يتحقق، ومهمة الاحتفاظ ما زالت غير مبنية، والجامعات الحقيقية تولّد الآن حجمًا يملأ قاعدة 500 MB بسرعة.</dd>
+</dl></div>
+
+<div class="f med"><div class="hd"><span class="id">B-9</span><span class="badge sev med">متوسط</span><span class="badge ev">من وثائق المشروع</span><span class="badge st open">باقية</span><span class="t">ديون معمارية مفتوحة: صلاحيات قاعدة البيانات وإعادة تشغيل الرسائل المرفوضة</span></div>
+<div class="loc"><code>docs/ARCHITECTURE.md</code> OD-11 وOD-13</div>
+<dl>
+<dt>الأثر</dt><dd>الخدمات تتصل بدور <code>postgres</code> الكامل، فلا أقل امتياز. وإعادة الرسائل المرفوضة يدوية، فـ 3,928 رسالة (B-7) لا أداة لمعالجتها.</dd>
+<dt>المكتملة</dt><dd>باقية.</dd>
+</dl></div>
+</section>
+
+<section id="done">
+<h2>7. ما بقي ضعيفًا في النسخة المكتملة (17/19)</h2>
+<p>الموروث من النسخ الأخرى مشار إليه بمعرّفه الأصلي. الجديد هو ما أُضيف مع الجامعات الجديدة.</p>
+<div class="callout ok"><strong>تحديث 2026-10-20:</strong> بعد كتابة هذا التقرير أُصلحت C-1 وC-2 وC-3 وC-4 وC-6 في الكود، وتنجح في اختبارات الوحدات لكنها لم تُجرّب في المختبر. أما C-5 فلم يُبدأ. التفاصيل في <a href="COMPLETED_VERSION_REPORT.html#fixed">تقرير النسخة المكتملة، القسم 13</a>.</div>
+
+<div class="f high"><div class="hd"><span class="id">C-1</span><span class="badge sev high">عالٍ</span><span class="badge ev run">مُثبت بالتشغيل</span><span class="t">حجم الدفعة يبقى 1 بعد حدث كبير واحد</span></div>
+<div class="loc"><code>apps/agent/batcher.py:151-166</code>، وهو موروث (B-5)</div>
+<dl><dt>الحل</dt><dd>إعادة <code>_batch_size</code> إلى القيمة المضبوطة بعد عزل الحدث المفرد في حالة <code>TOO_LARGE</code> أيضًا، أو مضاعفتها تدريجيًا بعد كل نجاح، مع اختبار انحدار.</dd></dl></div>
+
+<div class="f high"><div class="hd"><span class="id">C-2</span><span class="badge sev high">عالٍ</span><span class="badge ev run">مُثبت بالتشغيل</span><span class="t">تدوير الملفات يُضيّع آخر الأسطر في logfile وauditd وeBPF وGoFlow2</span></div>
+<div class="loc"><code>apps/agent/collectors/tail.py:105-117</code>، <code>logfile.py:152-169</code>، وهو موروث (B-4)</div>
+<dl><dt>الأثر</dt><dd>لسجل auditd خصوصًا: آخر أحداث قبل التدوير، وهي في هجوم يملأ السجل عمدًا أهم الأحداث، لا تصل.</dd>
+<dt>الحل</dt><dd>عند تغيّر الـ inode تُقرأ بقية الملف القديم أولًا (بواصف مفتوح أو بالاسم المدوَّر) قبل الانتقال. ولكشف copytruncate يُقارن وقت التغيير مع بصمة أول بايتات الملف.</dd></dl></div>
+
+<div class="f high"><div class="hd"><span class="id">C-3</span><span class="badge sev high">عالٍ</span><span class="badge ev run">مُثبت بالتشغيل</span><span class="t">eBPF: مسار تنفيذ يحتوي <code>"</code> أو <code>\</code> يُسقط حدث التنفيذ، وهذا طريق للتهرب</span></div>
+<div class="loc"><code>infrastructure/ebpf/adis-syscalls.bt:24-26</code>؛ <code>apps/agent/collectors/syscalls.py:169-176</code></div>
+<dl>
+<dt>الآلية</dt><dd>البرنامج يطبع <code>comm</code> و<code>filename</code> داخل JSON بـ <code>printf("%s")</code> دون تهريب الرموز. أي <code>"</code> في المسار يكسر السطر، و<code>parse_ebpf_line</code> يعيد <code>None</code>، فيُعدّ السطر «متخطى».</dd>
+<dt>الدليل</dt><dd>تنفيذ <code>/tmp/x"y</code> أنتج سطرًا أعاد المحلل له <code>None</code>.</dd>
+<dt>الأثر</dt><dd>المهاجم يشغّل أداته من مسار فيه علامة اقتباس، فلا يظهر تنفيذها في تسلسلات استدعاءات النظام.</dd>
+<dt>الحل</dt><dd>استخدام مخرج bpftrace المنظّم <code>-f json</code> الذي يهرّب النصوص، أو طباعة المسار بالست عشري، ثم عدّ الأسطر غير المقروءة كإشارة أمنية لا كضجيج.</dd>
+</dl></div>
+
+<div class="f high"><div class="hd"><span class="id">C-4</span><span class="badge sev high">عالٍ</span><span class="badge ev">من قراءة الكود</span><span class="t">eBPF: أي عملية تسمّي نفسها <code>bpftrace</code> تختفي كليًا</span></div>
+<div class="loc"><code>infrastructure/ebpf/adis-syscalls.bt:22</code>، <code>:55</code>: <code>/ comm != "bpftrace" /</code></div>
+<dl>
+<dt>الآلية</dt><dd>الاستبعاد بالاسم، والاسم (16 حرفًا) تغيّره أي عملية دون صلاحيات عبر <code>prctl(PR_SET_NAME)</code> أو بنسخ الملف التنفيذي باسم جديد.</dd>
+<dt>الحل</dt><dd>الاستبعاد برقم عملية المتتبِّع نفسه (<code>pid != $tracer</code>)، لا بالاسم.</dd>
+</dl></div>
+
+<div class="f med"><div class="hd"><span class="id">C-5</span><span class="badge sev med">متوسط</span><span class="badge ev run">مُثبت بالتشغيل</span><span class="t">فشل الدخول وقفل الحساب ومسح السجل وتثبيت الخدمات كلها «info»</span></div>
+<div class="loc"><code>apps/agent/collectors/windows_auth.py:301</code>، <code>windows_events.py:52-59</code>، <code>:579</code>، وهو موروث من muna (M-7)</div>
+<dl><dt>الحل</dt><dd>تحديد الشدة بمعرّف الحدث وKeywords (Audit Failure) لا بالمستوى، ورفع 104 و7045 و4740.</dd></dl></div>
+
+<div class="f high"><div class="hd"><span class="id">C-6</span><span class="badge sev high">عالٍ</span><span class="badge ev">من قراءة الكود</span><span class="t">Syslog: قائمة الانتظار بلا حد عندما يمتلئ المخزن، فقد تنفد الذاكرة</span></div>
+<div class="loc"><code>apps/agent/collectors/syslog.py:527</code>، <code>:556</code>، <code>:609-614</code>؛ <code>apps/agent/agent.py:88-96</code></div>
+<dl>
+<dt>الآلية</dt><dd><code>received()</code> يضيف إلى <code>self._pending</code> دون حد. و<code>flush()</code> ينتظر <code>sink.submit</code> الذي يتوقف ما دام المخزن ممتلئًا، بينما يستمر معالجا UDP وTCP في الاستقبال.</dd>
+<dt>الأثر</dt><dd>انقطاع طويل للخادم مع مصدر Syslog مشغول، أو فيضان متعمد من مرسل مسموح، ينمّي الذاكرة حتى تنتهي العملية. وعندها يضيع ما في القائمة وتتوقف كل الجامعات الأخرى معها.</dd>
+<dt>الحل</dt><dd>حد للقائمة يُعدّ ما يُسقط بعده في UDP، والتوقف عن القراءة في TCP لترك الضغط الراجع للمرسل.</dd>
+</dl></div>
+
+<div class="f med"><div class="hd"><span class="id">C-7</span><span class="badge sev med">متوسط</span><span class="badge ev">من قراءة الكود</span><span class="t">Syslog: معرّفات عشوائية، وقائمة مرسلين بعناوين UDP قابلة للانتحال، وبلا TLS</span></div>
+<div class="loc"><code>apps/agent/collectors/syslog.py:298</code>، <code>:434</code>، <code>:483</code> (<code>uuid4()</code>)؛ <code>:533-538</code></div>
+<dl>
+<dt>الأثر</dt><dd>ثلاثة آثار:
+<ul>
+  <li>إذا أعاد rsyslog إرسال رسائل بعد انقطاع اتصال TCP خُزّنت مرتين، فتتضخم أعداد فشل الدخول وتظهر هجمات تخمين وهمية.</li>
+  <li>من يستطيع انتحال عنوان مرسل مسموح عبر UDP يحقن أسطر sshd مزيفة.</li>
+  <li>لا دعم لـ RFC 5425 (Syslog فوق TLS).</li>
+</ul></dd>
+<dt>ملاحظة</dt><dd>منع التكرار عبر بصمة المحتوى قرار تصميم يحتاج حذرًا: رسالتان متطابقتان في الثانية نفسها قد تكونان حدثين حقيقيين.</dd>
+</dl></div>
+
+<div class="f med"><div class="hd"><span class="id">C-8</span><span class="badge sev med">متوسط</span><span class="badge ev">من قراءة الكود</span><span class="t">الوقت: logfile بوقت القراءة، وRFC 3164 بوقت الاستلام، ولا حدود للوقت</span></div>
+<div class="loc"><code>logfile.py:181</code> (B-2)، <code>syslog.py:18</code>، <code>apps/normalizer/normalization.py:164-194</code> (M-4)</div>
+<dl><dt>الأثر</dt><dd>ثلاثة أنواع من الأحداث لا تحمل وقت وقوعها الحقيقي، وحدث بتاريخ قديم يُقبل دون علامة.</dd></dl></div>
+
+<div class="f med"><div class="hd"><span class="id">C-9</span><span class="badge sev med">متوسط</span><span class="badge ev lab">مُثبت في المختبر</span><span class="t">هوية وكيل جديدة تقرأ التاريخ نفسه فتُغرق الرسائل المرفوضة</span></div>
+<div class="loc"><code>apps/normalizer/pipeline.py:81</code>، <code>:567</code>، وهو موروث (B-7): 3,928 رسالة</div>
+<dl><dt>الحل</dt><dd>استبعاد <code>agent_id</code> من مقارنة التعارض للأحداث ذات الهوية المبنية على المحتوى، أو تسجيل الحالة كـ «إعادة قراءة» لا كتعارض.</dd></dl></div>
+
+<div class="f high"><div class="hd"><span class="id">C-10</span><span class="badge sev high">عالٍ</span><span class="badge ev lab">مُثبت في المختبر</span><span class="t">R-07 وR-19 غير متحققين، ومهمة الاحتفاظ غير مبنية</span></div>
+<div class="loc">تقرير التنفيذ، قسم النتائج؛ OD-15</div>
+<dl><dt>الأرقام</dt><dd>
+<ul>
+  <li>ذروة التخزين 805 حدث/ث، بينما يطلب R-07 ملايين الرسائل في الثانية.</li>
+  <li>وسيط زمن الوصول من الحدث إلى التخزين بين 0.04 و0.67 ث، بينما يطلب R-19 كشفًا في أقل من 50 ms.</li>
+  <li>لا حذف آلي للبيانات القديمة.</li>
+</ul></dd></dl></div>
+
+<div class="f med"><div class="hd"><span class="id">C-11</span><span class="badge sev med">متوسط</span><span class="badge ev lab">مُثبت في المختبر</span><span class="t">ثلاثة مصادر لم تُجرّب على بيانات حقيقية</span></div>
+<div class="loc">auditd (مختبر بملفات اختبار فقط، والمختبر استخدم eBPF)؛ سجل Security في Windows (يحتاج صلاحيات المدير)؛ الالتقاط الحي على Windows (يحتاج Npcap، ولا نثبّت تعريفات)</div>
+<dl><dt>الأثر</dt><dd>البيانات الحقيقية كشفت ستة أخطاء في المصادر التي جُرّبت، فاحتمال وجود مثلها في هذه الثلاثة مرتفع.</dd></dl></div>
+
+<div class="f med"><div class="hd"><span class="id">C-12</span><span class="badge sev med">متوسط</span><span class="badge ev">من قراءة الكود</span><span class="t">قدرات في muna لم تُنقل</span></div>
+<div class="loc">انظر <a href="#better">القسم 8</a></div>
+<dl><dt>الأثر</dt><dd>لا تقدير لفقد سجلات NetFlow من أرقام التسلسل، فالفقد عند المُصدِّر غير مرئي. ولا اسم مستعار (HMAC) لأسماء الحسابات في قاعدة البيانات.</dd></dl></div>
+
+<div class="f low"><div class="hd"><span class="id">C-13</span><span class="badge sev low">منخفض</span><span class="badge ev">من قراءة الكود</span><span class="t">متتبع الجلسات في الذاكرة</span></div>
+<div class="loc"><code>apps/agent/collectors/sessions.py:72-76</code></div>
+<dl><dt>الأثر</dt><dd>إعادة تشغيل الوكيل تُفقد الجلسات المفتوحة، فيصل خروجها دون متجه جلسة كامل.</dd></dl></div>
+
+<div class="f med"><div class="hd"><span class="id">C-14</span><span class="badge sev med">متوسط</span><span class="badge ev">من قراءة الكود</span><span class="t">لا نبض حياة لكل جامع</span></div>
+<div class="loc">لا حدث <code>heartbeat</code> في <code>apps/agent</code> ولا في <code>packages/events</code></div>
+<dl><dt>الأثر</dt><dd>صمت مصدر (لا تدفقات ولا رسائل Syslog) لا يُميّز من تعطّله أو من إيقافه على يد مهاجم، وهي المشكلة نفسها في O-17.</dd></dl></div>
+
+<div class="f low"><div class="hd"><span class="id">C-15</span><span class="badge sev low">منخفض</span><span class="badge ev">من قراءة الكود</span><span class="t">الالتقاط الحي: فقد التدفقات المفتوحة عند الإلغاء، وإسقاطات النواة غير مقيسة</span></div>
+<div class="loc"><code>apps/agent/collectors/live_capture.py:440-443</code> (يُسجَّل <code>agent_live_capture_lost_flows</code>)؛ يُعدّ <code>queue_drops</code> فقط (<code>:256</code>)</div>
+<dl><dt>الأثر</dt><dd>إسقاطات libpcap داخل النواة لا تظهر، فلا يُعرف إن كانت التدفقات كاملة.</dd></dl></div>
+
+<div class="f low"><div class="hd"><span class="id">C-16</span><span class="badge sev low">منخفض</span><span class="badge ev">من قراءة الكود</span><span class="t">ملف PCAP قيد الكتابة، وصلاحيات المختبر</span></div>
+<div class="loc"><code>apps/agent/collectors/pcap.py:70-89</code>؛ <code>infrastructure/lab/</code></div>
+<dl><dt>الأثر</dt><dd>ملف يُقرأ وهو ما زال يُكتب تُخزّن تدفقاته بعدّادات ناقصة، والنسخة الأولى هي التي تبقى. ووكيل المختبر يعمل بصلاحيات root مع NET_RAW وNET_ADMIN، وحاوية eBPF مميّزة مع <code>pid: host</code>، وهذا مقصور على المختبر.</dd></dl></div>
+</section>
+
+<section id="better">
+<h2>8. أين تتفوق muna على النسخة المكتملة</h2>
+<p>للإنصاف، هذه قدرات فعلية في muna لم تدخل النسخة المكتملة:</p>
+<div class="tbl"><table>
+<thead><tr><th>القدرة في muna</th><th>المكان</th><th>لماذا تهم</th></tr></thead>
+<tbody>
+<tr><td>تقدير فقد سجلات NetFlow/IPFIX من فجوات رقم التسلسل لكل مُصدِّر</td><td><code>collectors/flowcollector/exporters.py:1-12</code>، <code>:97-111</code></td><td>بدونه لا يُعرف أن المُصدِّر أسقط سجلات، فتبدو الشبكة أهدأ مما هي.</td></tr>
+<tr><td>اسم مستعار للحسابات (HMAC-SHA256) قبل التخزين</td><td><code>db/mapping.py:125-131</code>، <code>db/consumer.py:404-412</code></td><td>يقلل أثر تسرب قاعدة البيانات مع إبقاء الربط بين أحداث المستخدم نفسه ممكنًا.</td></tr>
+<tr><td>ملخصات التدفقات وملاحظة التغطية لكل مُصدِّر</td><td><code>flowsummary/aggregate.py</code>، <code>service.py:40-44</code></td><td>توضح ما لا يُرى (الحركة داخل VLAN لا تمر بمُصدِّر).</td></tr>
+<tr><td>فحص الوقت المستقبلي ورفضه عند البوابة</td><td><code>common/normalize.py:44-52</code></td><td>النسخة المكتملة تقبله مع علامة، وهذا اختيار مقبول لكنه أضعف.</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="prio">
+<h2>9. ترتيب الإصلاح المقترح للنسخة المكتملة</h2>
+<p>الترتيب حسب الأثر مقابل الجهد. البنود الخمسة الأولى صغيرة ولكل منها اختبار انحدار واضح.</p>
+<ol class="prio">
+  <li><strong>C-1</strong> حجم الدفعة: سطر واحد واختبار، ويمنع انهيار الإنتاجية.</li>
+  <li><strong>C-3 وC-4</strong> eBPF: مخرج JSON مهرّب واستبعاد برقم العملية، فيُغلق طريقا تهرب.</li>
+  <li><strong>C-6</strong> حد لقائمة Syslog: يمنع نفاد الذاكرة.</li>
+  <li><strong>C-2</strong> قراءة بقية الملف القديم عند التدوير: يمنع فقد أحداث auditd.</li>
+  <li><strong>C-5</strong> الشدة حسب معرّف الحدث: يُظهر فشل الدخول والقفل ومسح السجل للمشغّل.</li>
+  <li><strong>C-14</strong> نبض حياة لكل جامع.</li>
+  <li><strong>C-9</strong> مقارنة التعارض دون <code>agent_id</code>.</li>
+  <li><strong>C-10</strong> مهمة الاحتفاظ، ثم قياس الأداء نحو R-07 وR-19 (عمل أكبر يمس المعمارية).</li>
+</ol>
+</section>
+
+<section id="evidence">
+<h2>10. كيف أُثبتت الأدلة</h2>
+<div class="tbl"><table>
+<thead><tr><th>الدليل</th><th>ما الذي شُغّل</th><th>النتيجة</th></tr></thead>
+<tbody>
+<tr><td>O-1، O-2، O-3، O-4، O-9، O-16، O-17</td><td>إحصاءات مجمّعة على <code>omran/network_data.csv</code> (208,949 سطرًا) دون طباعة أي عنوان</td><td>أقصى معدل 153/ث، والوسيط 10.1 ms، و69 فاصلًا تحت 1 ms، و6 رجوعات للوقت (أكبرها 14 ث)، و10,071 حجمًا فوق 1,514، و217 بلا منافذ، و4 فجوات أكبرها 30.8 ساعة</td></tr>
+<tr><td>B-5 / C-1</td><td><code>Batcher</code> الحقيقي مع مخزن وخادم مزيّفين، و1,011 حدثًا فيها حدث واحد كبير</td><td>حجم الدفعة 1 بعد الحدث الكبير، و1,011 طلبًا</td></tr>
+<tr><td>B-4 / C-2</td><td><code>LineTail</code> الحقيقي: كتابة ثم تدوير، ثم copytruncate</td><td>ضاع السطران 3 و4، ونتج سطر مشوه</td></tr>
+<tr><td>C-3</td><td><code>parse_ebpf_line</code> على سطر بمسار <code>/tmp/x"y</code></td><td><code>None</code>، أي أن الحدث سقط</td></tr>
+<tr><td>M-7 / C-5</td><td>محوّلا Windows في النسخة المكتملة على ملفات الاختبار 4625 و4740 و104 و7045</td><td>كلها <code>info</code></td></tr>
+<tr><td>B-6، B-7 / C-9، C-10، O-8</td><td>مختبر البيانات الحقيقية الموثّق في <a href="PHASE_1_IMPLEMENTATION_REPORT.html">تقرير التنفيذ</a></td><td>رفض التسجيل عند إعادة التشغيل (أُصلح)، و3,928 تعارضًا، و805 حدث/ث، وانقطاع 30 ث بلا فقد</td></tr>
+</tbody></table></div>
+<p>نصوص التحقق في مجلد العمل المؤقت للجلسة، ولم تُضف إلى المستودع. لم يُغيَّر أي ملف في الكود لكتابة هذا التقرير.</p>
+</section>
+
+<footer>تقرير مقارنة عميقة للمرحلة الأولى من ADIS، 2026-10-19. الأرقام من الكود الحالي في <code>D:\pentra</code> ومن البيانات المذكورة في كل بند.</footer>
+</main>
+</body>
+</html>

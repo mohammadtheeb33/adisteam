@@ -1,0 +1,453 @@
+{
+  "uid": "adis-pipeline",
+  "title": "ADIS Phase 1 ingestion pipeline",
+  "tags": [
+    "adis"
+  ],
+  "timezone": "utc",
+  "schemaVersion": 39,
+  "version": 3,
+  "editable": false,
+  "refresh": "30s",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "row",
+      "title": "Services",
+      "collapsed": false,
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 1
+      },
+      "panels": []
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Scrape targets up",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "adis-prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 1,
+        "w": 24,
+        "h": 4
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "adis-prometheus"
+          },
+          "expr": "up{job=~\"adis-.*\"}",
+          "legendFormat": "{{job}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 3,
+      "type": "row",
+      "title": "Ingestion API",
+      "collapsed": false,
+      "gridPos": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 1
+      },
+      "panels": []
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "Events submitted (per second)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "adis-prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 6,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "adis-prometheus"
+          },
+          "expr": "sum by (outcome) (rate(adis_api_events_total[5m]))",
+          "legendFormat": "{{outcome}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "HTTP requests by status (per second)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "adis-prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 6,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "adis-prometheus"
+          },
+          "expr": "sum by (status) (rate(adis_api_http_requests_total[5m]))",
+          "legendFormat": "{{status}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Request latency p95 by route",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "adis-prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 14,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "adis-prometheus"
+          },
+          "expr": "histogram_quantile(0.95, sum by (le, route) (rate(adis_api_http_request_duration_seconds_bucket[5m])))",
+          "legendFormat": "{{route}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Publish failures, rate limiting and Redis fallbacks (per second)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "adis-prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 14,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "adis-prometheus"
+          },
+          "expr": "rate(adis_api_publish_failures_total[5m])",
+          "legendFormat": "publish failures",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "adis-prometheus"
+          },
+          "expr": "rate(adis_api_rate_limited_total[5m])",
+          "legendFormat": "429 rate limited",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "adis-prometheus"
+          },
+          "expr": "rate(adis_api_rate_limit_fallbacks_total[5m])",
+          "legendFormat": "limiter fallbacks",
+          "refId": "C"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 8,
+      "type": "row",
+      "title": "Normalizer",
+      "collapsed": false,
+      "gridPos": {
+        "x": 0,
+        "y": 22,
+        "w": 24,
+        "h": 1
+      },
+      "panels": []
+    },
+    {
+      "id": 9,
+      "type": "timeseries",
+      "title": "Events by outcome (per second)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "adis-prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 23,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "adis-prometheus"
+          },
+          "expr": "sum by (outcome) (rate(adis_normalizer_events_total[5m]))",
+          "legendFormat": "{{outcome}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 10,
+      "type": "timeseries",
+      "title": "Consumer lag (records behind)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "adis-prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 23,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "adis-prometheus"
+          },
+          "expr": "sum by (partition) (adis_normalizer_consumer_lag)",
+          "legendFormat": "{{partition}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 11,
+      "type": "timeseries",
+      "title": "Batch duration p95",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "adis-prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 31,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "adis-prometheus"
+          },
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(adis_normalizer_batch_duration_seconds_bucket[5m])))",
+          "legendFormat": "p95",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 12,
+      "type": "timeseries",
+      "title": "Retries by kind (per second)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "adis-prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 31,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "adis-prometheus"
+          },
+          "expr": "sum by (kind) (rate(adis_normalizer_retries_total[5m]))",
+          "legendFormat": "{{kind}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 13,
+      "type": "stat",
+      "title": "Last hour: future timestamps, agent registrations",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "adis-prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 39,
+        "w": 24,
+        "h": 4
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "adis-prometheus"
+          },
+          "expr": "sum(increase(adis_normalizer_future_timestamps_total[1h]))",
+          "legendFormat": "future timestamps",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "adis-prometheus"
+          },
+          "expr": "sum(increase(adis_normalizer_agent_registrations_total[1h]))",
+          "legendFormat": "agent registrations",
+          "refId": "B"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 18,
+      "type": "timeseries",
+      "title": "Final anomalies delivered by outcome (per second)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "adis-prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 53,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "adis-prometheus"
+          },
+          "expr": "sum by (outcome) (rate(adis_anomalies_total[5m]))",
+          "legendFormat": "{{outcome}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {}
+    }
+  ],
+  "templating": {
+    "list": []
+  },
+  "annotations": {
+    "list": []
+  }
+}

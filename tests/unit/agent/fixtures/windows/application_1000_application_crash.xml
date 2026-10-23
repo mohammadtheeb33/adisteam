@@ -1,0 +1,33 @@
+<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'>
+  <System>
+    <Provider Name='Application Error' Guid='{a0e9b465-b939-57d7-b27d-95d8e925ff57}'/>
+    <EventID Qualifiers='0'>1000</EventID>
+    <Version>0</Version>
+    <Level>2</Level>
+    <Task>100</Task>
+    <Opcode>0</Opcode>
+    <Keywords>0x80000000000000</Keywords>
+    <TimeCreated SystemTime='2026-10-09T21:30:15.2501000Z'/>
+    <EventRecordID>52001</EventRecordID>
+    <Correlation/>
+    <Execution ProcessID='14220' ThreadID='0'/>
+    <Channel>Application</Channel>
+    <Computer>WIN-LAB-01</Computer>
+    <Security/>
+  </System>
+  <EventData>
+    <Data Name='AppName'>labtool.exe</Data>
+    <Data Name='AppVersion'>1.4.2.0</Data>
+    <Data Name='AppTimeStamp'>66a1b2c3</Data>
+    <Data Name='ModuleName'>ucrtbase.dll</Data>
+    <Data Name='ModuleVersion'>10.0.26100.1</Data>
+    <Data Name='ModuleTimeStamp'>12ab34cd</Data>
+    <Data Name='ExceptionCode'>c0000409</Data>
+    <Data Name='FaultingOffset'>000000000009e1a4</Data>
+    <Data Name='ProcessId'>0x378c</Data>
+    <Data Name='ProcessCreationTime'>0x1dc1a2b3c4d5e6f</Data>
+    <Data Name='AppPath'>C:\Users\lab.user01\AppData\Local\LabTool\labtool.exe</Data>
+    <Data Name='ModulePath'>C:\Windows\System32\ucrtbase.dll</Data>
+    <Data Name='IntegratorReportId'>0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0</Data>
+  </EventData>
+</Event>

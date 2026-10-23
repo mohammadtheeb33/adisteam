@@ -1,0 +1,12 @@
+# Provisions the ADIS dashboards from the JSON files next to this one (read-only in the UI;
+# change the JSON and restart Grafana).
+apiVersion: 1
+
+providers:
+  - name: adis
+    folder: ADIS
+    type: file
+    disableDeletion: true
+    allowUiUpdates: false
+    options:
+      path: /etc/grafana/provisioning/dashboards/json

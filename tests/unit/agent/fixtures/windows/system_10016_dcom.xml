@@ -1,0 +1,23 @@
+<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'>
+  <System>
+    <Provider Name='Microsoft-Windows-DistributedCOM' Guid='{1b562e86-b7aa-4131-badc-b6f3a001407e}' EventSourceName='DCOM'/>
+    <EventID Qualifiers='0'>10016</EventID>
+    <Version>0</Version>
+    <Level>3</Level>
+    <Task>0</Task>
+    <Opcode>0</Opcode>
+    <Keywords>0x8080000000000000</Keywords>
+    <TimeCreated SystemTime='2026-10-09T21:22:30.7000000Z'/>
+    <EventRecordID>5122</EventRecordID>
+    <Correlation/>
+    <Execution ProcessID='1012' ThreadID='4321'/>
+    <Channel>System</Channel>
+    <Computer>WIN-LAB-01</Computer>
+    <Security UserID='S-1-5-18'/>
+  </System>
+  <EventData>
+    <Data Name='param1'>application-specific</Data>
+    <Data Name='param2'>Local</Data>
+    <Data Name='param3'>Activation</Data>
+  </EventData>
+</Event>

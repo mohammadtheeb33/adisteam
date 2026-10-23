@@ -1,0 +1,24 @@
+<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'>
+  <System>
+    <Provider Name='Microsoft-Windows-Security-Auditing' Guid='{54849625-5478-4994-a5ba-3e3b0328c30d}'/>
+    <EventID>4647</EventID>
+    <Version>0</Version>
+    <Level>0</Level>
+    <Task>12545</Task>
+    <Opcode>0</Opcode>
+    <Keywords>0x8020000000000000</Keywords>
+    <TimeCreated SystemTime='2026-10-09T09:31:10.0000000Z'/>
+    <EventRecordID>120019</EventRecordID>
+    <Correlation/>
+    <Execution ProcessID='812' ThreadID='3300'/>
+    <Channel>Security</Channel>
+    <Computer>WIN-LAB-01</Computer>
+    <Security/>
+  </System>
+  <EventData>
+    <Data Name='TargetUserSid'>S-1-5-21-1111111111-2222222222-3333333333-1001</Data>
+    <Data Name='TargetUserName'>lab.user01</Data>
+    <Data Name='TargetDomainName'>WIN-LAB-01</Data>
+    <Data Name='TargetLogonId'>0x3e7a1f</Data>
+  </EventData>
+</Event>

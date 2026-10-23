@@ -1,0 +1,126 @@
+# GoFlow2 output mapping for the ADIS flow collector (goflow2 -mapping=<this file> -format=json).
+#
+# - Only flow METADATA is printed: no MAC addresses, no packet contents.
+# - Protocol, EtherType and times are printed as plain numbers (render: none) so ADIS converts
+#   them itself.
+# - Extra NetFlow v9 / IPFIX elements that GoFlow2 does not output by default are added as custom
+#   fields (protobuf index 1000+). ADIS uses them to keep bidirectional counters, to know
+#   whether the exporter reported flow times at all, and to record end reasons and direction.
+formatter:
+  fields:
+    - type
+    - time_received_ns
+    - sequence_num
+    - sampling_rate
+    - sampler_address
+    - observation_domain_id
+    - observation_point_id
+    - time_flow_start_ns
+    - time_flow_end_ns
+    - bytes
+    - packets
+    - src_addr
+    - dst_addr
+    - etype
+    - proto
+    - src_port
+    - dst_port
+    - in_if
+    - out_if
+    - vlan_id
+    - src_vlan
+    - dst_vlan
+    - tcp_flags
+    - icmp_type
+    - icmp_code
+    - ip_tos
+    - forwarding_status
+    - src_net
+    - dst_net
+    - src_as
+    - dst_as
+    - flow_direction
+    - biflow_direction
+    - flow_end_reason
+    - reverse_bytes
+    - reverse_packets
+    - initiator_bytes
+    - responder_bytes
+    - initiator_packets
+    - responder_packets
+    - octet_total_count
+    - packet_total_count
+    - dot1q_vlan_id
+    - record_sampling_interval
+    - start_sysuptime_ms
+    - end_sysuptime_ms
+    - system_init_time_ms
+    - flow_start_abs
+    - flow_end_abs
+    - exporter_flow_id
+  render:
+    proto: none
+    etype: none
+    time_received_ns: none
+  protobuf:
+    - {name: flow_direction, index: 1001, type: varint}
+    - {name: biflow_direction, index: 1002, type: varint}
+    - {name: flow_end_reason, index: 1003, type: varint}
+    - {name: reverse_bytes, index: 1004, type: varint}
+    - {name: reverse_packets, index: 1005, type: varint}
+    - {name: initiator_bytes, index: 1006, type: varint}
+    - {name: responder_bytes, index: 1007, type: varint}
+    - {name: initiator_packets, index: 1008, type: varint}
+    - {name: responder_packets, index: 1009, type: varint}
+    - {name: octet_total_count, index: 1010, type: varint}
+    - {name: packet_total_count, index: 1011, type: varint}
+    - {name: dot1q_vlan_id, index: 1012, type: varint}
+    - {name: record_sampling_interval, index: 1013, type: varint}
+    - {name: start_sysuptime_ms, index: 1014, type: varint}
+    - {name: end_sysuptime_ms, index: 1015, type: varint}
+    - {name: system_init_time_ms, index: 1016, type: varint}
+    - {name: flow_start_abs, index: 1017, type: varint}
+    - {name: flow_end_abs, index: 1018, type: varint}
+    - {name: exporter_flow_id, index: 1019, type: varint}
+ipfix:
+  mapping:
+    - {field: 148, destination: exporter_flow_id}
+    - {field: 61, destination: flow_direction}
+    - {field: 239, destination: biflow_direction}
+    - {field: 136, destination: flow_end_reason}
+    # RFC 5103 reverse counters (private enterprise number 29305)
+    - {field: 1, penprovided: true, pen: 29305, destination: reverse_bytes}
+    - {field: 2, penprovided: true, pen: 29305, destination: reverse_packets}
+    # Firewall-style bidirectional counters (e.g. NSEL)
+    - {field: 231, destination: initiator_bytes}
+    - {field: 232, destination: responder_bytes}
+    - {field: 298, destination: initiator_packets}
+    - {field: 299, destination: responder_packets}
+    - {field: 85, destination: octet_total_count}
+    - {field: 86, destination: packet_total_count}
+    - {field: 243, destination: dot1q_vlan_id}
+    - {field: 34, destination: record_sampling_interval}
+    # Which time elements the exporter actually sent
+    - {field: 22, destination: start_sysuptime_ms}
+    - {field: 21, destination: end_sysuptime_ms}
+    - {field: 160, destination: system_init_time_ms}
+    - {field: 150, destination: flow_start_abs}
+    - {field: 152, destination: flow_start_abs}
+    - {field: 154, destination: flow_start_abs}
+    - {field: 156, destination: flow_start_abs}
+    - {field: 158, destination: flow_start_abs}
+    - {field: 151, destination: flow_end_abs}
+    - {field: 153, destination: flow_end_abs}
+    - {field: 155, destination: flow_end_abs}
+    - {field: 157, destination: flow_end_abs}
+    - {field: 159, destination: flow_end_abs}
+netflowv9:
+  mapping:
+    - {field: 61, destination: flow_direction}
+    - {field: 34, destination: record_sampling_interval}
+    - {field: 85, destination: octet_total_count}
+    - {field: 86, destination: packet_total_count}
+    - {field: 22, destination: start_sysuptime_ms}
+    - {field: 21, destination: end_sysuptime_ms}
+    - {field: 152, destination: flow_start_abs}
+    - {field: 153, destination: flow_end_abs}

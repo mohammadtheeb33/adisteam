@@ -1,0 +1,24 @@
+{
+  "scope": "Phase 1 sensing and data collection only",
+  "published_on": "2026-10-23",
+  "source_score": "17/19 (historical; not a new performance evaluation)",
+  "database_migration_head": "5b8e2c4f1a93",
+  "postgresql_data_dump_included": false,
+  "validation": {
+    "tests_passed": 1665,
+    "tests_skipped": 67,
+    "tests_failed": 0,
+    "ruff": "passed",
+    "mypy": "passed",
+    "wheel_build": "passed",
+    "isolated_runtime_imports": 101,
+    "compose_configuration": "passed"
+  },
+  "excluded_local_artifacts": [
+    ".env",
+    ".adis-lab/",
+    "COPY_MANIFEST.json",
+    "COPY_STATUS.json",
+    "SCOPE_CHANGES.json"
+  ]
+}

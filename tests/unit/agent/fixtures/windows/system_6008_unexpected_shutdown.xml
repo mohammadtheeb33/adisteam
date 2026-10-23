@@ -1,0 +1,27 @@
+<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'>
+  <System>
+    <Provider Name='EventLog'/>
+    <EventID Qualifiers='32768'>6008</EventID>
+    <Version>0</Version>
+    <Level>2</Level>
+    <Task>0</Task>
+    <Opcode>0</Opcode>
+    <Keywords>0x80000000000000</Keywords>
+    <TimeCreated SystemTime='2026-10-09T06:02:45.123456789Z'/>
+    <EventRecordID>4987</EventRecordID>
+    <Correlation/>
+    <Execution ProcessID='0' ThreadID='0'/>
+    <Channel>System</Channel>
+    <Computer>WIN-LAB-01</Computer>
+    <Security/>
+  </System>
+  <EventData>
+    <Data>11:58:12 PM</Data>
+    <Data>‎10/‎8/‎2026</Data>
+    <Data></Data>
+    <Data></Data>
+    <Data>15532</Data>
+    <Data></Data>
+    <Data></Data>
+  </EventData>
+</Event>
